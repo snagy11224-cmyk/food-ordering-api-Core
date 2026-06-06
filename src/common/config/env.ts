@@ -1,7 +1,9 @@
+//import { env } from './env';
 import { config } from "dotenv";
 import { z } from "zod";
+import path from "path";
 
-config();
+config({ path: path.resolve(import.meta.dirname, "../../../.env") });
 
 //console.log("DOTENV RESULT:", result);
 //console.log("DB_USER:", process.env.DB_USER);
@@ -17,6 +19,8 @@ const envSchema = z.object({
   DB_PASSWORD: z.string().default("password"),
   DB_NAME: z.string().default("quickbite_core"),
   DB_POOL_MAX: z.string().default("10"),
+  DB_MIGRATIONS_DIR: z.string(),
+  DB_MIGRATION_EXTENSION: z.string(),
 });
 
 const parsedEnv = envSchema.parse(process.env);
@@ -31,5 +35,7 @@ export const env = {
     password: parsedEnv.DB_PASSWORD,
     name: parsedEnv.DB_NAME,
     poolMax: Number(parsedEnv.DB_POOL_MAX),
+    migrationsDir: path.resolve(import.meta.dirname, "../../../", parsedEnv.DB_MIGRATIONS_DIR),
+    migrationExtension: parsedEnv.DB_MIGRATION_EXTENSION,
   },
 };

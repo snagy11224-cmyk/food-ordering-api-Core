@@ -1,0 +1,12 @@
+Outcome :
+1- auth syatem  (sign up , login , forget password)
+2- users (/me and /update) 
+3- customer address
+
+-------------------------------------------------------------
+plan:
+-- create DB tables for (users, customer_adresses , password_resets)
+-- implement auth module
+-- implement users module 
+-- implement customer_addresses module
+-- test and wire everything 
