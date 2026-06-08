@@ -16,7 +16,7 @@ CREATE TABLE customer_addresses (
     type text NOT NULL check (type in ('home', 'office', 'public')),
     lat decimal(10, 7) NOT NULL,
     lng decimal(11, 7) NOT NULL,
-    is_default boolean NOT NULL 
+    is_default boolean NOT NULL ,
 
     constraint fk_customer_addresses_user_id foreign key (user_id) references users(id));
 
