@@ -6,7 +6,7 @@ export async function up(knex: Knex): Promise<void> {
 await knex.raw(
 `CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    email typeKnex unique NOT NULL,
+    email text unique NOT NULL,
     phone text NOT NULL unique,
     name text NOT NULL,
     password_hash text NOT NULL,
