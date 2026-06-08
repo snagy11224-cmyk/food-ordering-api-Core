@@ -1,8 +1,14 @@
-const logger = require("../../common/logger/logger");
+import { Request, Response, NextFunction } from "express";
+import logger from "../../common/logger/logger.js";
 
-const THRESHOLD_MS = Number(process.env.SLOW_REQUEST_THRESHOLD_MS) || 500;
+const THRESHOLD_MS =
+  Number(process.env.SLOW_REQUEST_THRESHOLD_MS) || 500;
 
-module.exports = (req, res, next) => {
+export const slowRequestMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   const start = Date.now();
 
   res.on("finish", () => {

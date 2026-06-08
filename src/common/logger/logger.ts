@@ -1,39 +1,46 @@
 class Logger {
+  private static instance: Logger;
+
   constructor() {
-    //singleton pattern
     if (Logger.instance) {
       return Logger.instance;
     }
+
     Logger.instance = this;
   }
 
-  //define log function
-  //level: info,debug,error,warn
-  log(level, message, metadata = {}) {
+  log(
+    level: string,
+    message: string,
+    metadata: Record<string, unknown> = {}
+  ): void {
     const logObject = {
-      level: level,
-      message: message,
+      level,
+      message,
       timestamp: new Date().toISOString(),
       ...metadata,
     };
-    //this could call external logging services like datadog,loggly,papertrail
+
     console.log(JSON.stringify(logObject));
   }
 
-  // convenience methods to log at specific levels
-  info(message, metadata = {}) {
+  info(message: string, metadata: Record<string, unknown> = {}): void {
     this.log("info", message, metadata);
   }
-  debug(message, metadata = {}) {
+
+  debug(message: string, metadata: Record<string, unknown> = {}): void {
     this.log("debug", message, metadata);
   }
-  error(message, metadata = {}) {
+
+  error(message: string, metadata: Record<string, unknown> = {}): void {
     this.log("error", message, metadata);
   }
-  warn(message, metadata = {}) {
+
+  warn(message: string, metadata: Record<string, unknown> = {}): void {
     this.log("warn", message, metadata);
   }
 }
 
 const logger = new Logger();
-module.exports = logger;
+
+export default logger;
