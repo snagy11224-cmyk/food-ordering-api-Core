@@ -5,11 +5,13 @@ export function correlationIdMiddleware(
   req: Request,
   res: Response,
   next: NextFunction
-) {
-  const correlationId = uuidv4();
+)
 
-  req.correlationId = correlationId;
-  res.setHeader("X-Correlation-Id", correlationId);
+{
 
+  const id = uuidv4();
+
+  req.correlationId = id;
+  res.setHeader("X-Correlation-Id", id);
   next();
 }
