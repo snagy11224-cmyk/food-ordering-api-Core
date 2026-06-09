@@ -10,10 +10,10 @@ await knex.raw(
     phone text NOT NULL unique,
     name text NOT NULL,
     password_hash text NOT NULL,
-    system_role text NOT NULL check (system_role in ('system_admin', 'customer', 'restaurant_user')),
-    created_at timestamp with time zone DEFAULT now(),
-    updated_at timestamp with time zone DEFAULT now(),
-    deleted_at timestamp with time zone
+    system_role text NOT NULL check (system_role in ('system_admin', 'delivery_agent',  'customer', 'restaurant_user')),
+    created_at timestamp NOT NULL DEFAULT now(),
+    updated_at timestamp NOT NULL now(),
+    deleted_at timestamp 
 );
 
 create index idx_users_email on users(email);
