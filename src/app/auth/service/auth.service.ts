@@ -1,6 +1,9 @@
+import { registerDto } from '../dto/auth.dto';
+import { findUserByEmail } from '../../user/repository/users.repo';
 export class AuthService {
-register :(data: Object)=>Promise<void> =async (data:Object): Promise<void> => { 
+register : (data: registerDto) => Promise<void> = async (data: registerDto): Promise<void> => {
 //1. check if user with email or phone already exists, if yes throw error
+const existing = await findUserByEmail(data.email);
 
 //2. else hash the password
 
