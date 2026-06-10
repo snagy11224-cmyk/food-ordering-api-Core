@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { authService, AuthService } from './../service/auth.service';
 import { validateBody } from '../../../common/validation/validate';
-import { registerDto } from '../dto/auth.dto';
+import { loginDto, registerDto } from '../dto/auth.dto';
 
 export class AuthController {
   constructor(
@@ -25,5 +25,24 @@ export class AuthController {
       next(err);
     }
   };
+
+  login = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+        //1-validate request body
+        const data= await validateBody(loginDto,req.body);
+        //2-call service
+        const result=await this.authService.login(data);
+        //3-respond
+        res.status(200).json(result);
+
+    } catch (err) {
+      next(err);
+    }
+  };
+
 }
 export const authController=new AuthController(authService);

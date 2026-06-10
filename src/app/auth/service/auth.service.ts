@@ -1,20 +1,30 @@
-import { registerDto } from "../dto/auth.dto";
+import { loginDto, registerDto } from "../dto/auth.dto";
 import {
   findUserExistsByEmailOrPhone,
   createUser,
+  findUserByEmail,
 } from "../../user/repository/users.repo";
 import {
+    paswordMismatchError,
   userAlreadyExistsError,
   cantSignUPAsSystemAdmin,
+  incorrectCredentialsError
 } from "../errors";
 import {
+  comparePasswords,
   createAccessToken,
   createRefreshToken,
   hashPassword,
 } from "../utils";
 import { SystemRole } from "../../user/enums";
 
+
+/*type LoginResponse ={
+
+}*/
+
 type RegisterResponse = {
+  message: string;  
   accessToken: string;
   refreshToken: string;
   user: {
@@ -22,6 +32,7 @@ type RegisterResponse = {
     email: string;
     phone: string;
     systemRole: SystemRole;
+    createdAt:Date; 
   };
 };
 
@@ -55,7 +66,7 @@ export class AuthService {
 
     const payload = {
       userId: user.id,
-      role: user.systemRole,
+      role: data.role,
       email: user.email,
     };
 
@@ -63,6 +74,7 @@ export class AuthService {
     const refreshToken = createRefreshToken(payload);
 
     return {
+      message:"registered successfully!",  
       accessToken,
       refreshToken,
       user: {
@@ -70,9 +82,51 @@ export class AuthService {
         email: user.email,
         phone: user.phone,
         systemRole: user.systemRole,
+        createdAt:user.createdAt
       },
     };
   };
+
+login= async (data: loginDto): Promise<RegisterResponse> => { 
+    //1- find user by email
+    const user= await findUserByEmail(data.email);
+    if(!user){
+        throw incorrectCredentialsError;
+    }
+    //2- compare passwords
+    const match= await comparePasswords(data.password,user.passwordHash);
+    //if password doesnt match throw error 
+
+    if(!match){
+    throw paswordMismatchError;
+}
+    //generate tokens
+    const payload = {
+      userId: user.id,
+      role: user.systemRole,
+      email: user.email,
+    };
+
+    const accessToken = createAccessToken(payload);
+    const refreshToken = createRefreshToken(payload);
+
+    //return data 
+    return {
+      message:"loggedin successfully!",  
+      accessToken,
+      refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        systemRole: user.systemRole,
+        createdAt:user.createdAt
+      },
+    };
+
+}
+
+
 }
 
 export const authService=new AuthService();

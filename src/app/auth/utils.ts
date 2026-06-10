@@ -26,3 +26,7 @@ export function createRefreshToken(payload: AuthJwtPayload): string {
     expiresIn: env.jwt.refreshExpires as JwtExpiresIn,
   });
 }
+
+export function comparePasswords(passwordInput:string, hshedPassword:string){
+return bcrypt.compare(passwordInput,hshedPassword)
+}
