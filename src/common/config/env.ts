@@ -21,6 +21,10 @@ const envSchema = z.object({
   DB_POOL_MAX: z.string().default("10"),
   DB_MIGRATIONS_DIR: z.string(),
   DB_MIGRATION_EXTENSION: z.string(),
+  ACCESS_SECRET:z.string(),
+  REFRESH_SECRET:z.string(),
+  ACCESS_EXPIRES:z.string(),
+  REFRESH_EXPIRES:z.string()
 });
 
 const parsedEnv = envSchema.parse(process.env);
@@ -38,4 +42,10 @@ export const env = {
     migrationsDir: path.resolve(process.cwd(), parsedEnv.DB_MIGRATIONS_DIR),
     migrationExtension: parsedEnv.DB_MIGRATION_EXTENSION,
   },
+  jwt:{
+    refreshSecret: parsedEnv.REFRESH_SECRET,
+    accessSecret: parsedEnv.ACCESS_SECRET,
+    accessExpires: parsedEnv.ACCESS_EXPIRES,
+    refreshExpires: parsedEnv.REFRESH_EXPIRES
+  }
 };

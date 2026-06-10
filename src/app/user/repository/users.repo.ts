@@ -1,3 +1,4 @@
+import { Extension } from './../../../../node_modules/libphonenumber-js/types.d';
 import { db } from "../../../common/knex/knex";
 import { User } from "../entity/user.entity";
 
@@ -5,6 +6,7 @@ const USER_COLUMNS = [
     "id",
     "email",    
     "phone",
+    "name",
     "password_hash as passwordHash",
     "system_role as systemRole",
     "deleted_at as deletedAt",
@@ -17,7 +19,8 @@ function toEntity(row: any): User {
         id: row.id,
         email: row.email,
         phone: row.phone,
-        passwordHash: row.password_hash,     
+        name: row.name,
+        passwordHash: row.passwordHash,     
         systemRole: row.system_role,
         deletedAt: row.deleted_at,
         createdAt: row.created_at,
@@ -34,10 +37,16 @@ export async function findUserByEmail(email: string): Promise<User | undefined> 
     return row ? toEntity(row) : undefined;
 }
 
-export async function crreateUser(user: Partial<User>): Promise<User> {
+export async function findUserExistsByEmailOrPhone(email: string, phone: string): Promise<boolean> {
+const result = await db.raw(`SELECT EXISTS(select 1 from users where email=? or phone=?) AS "exists"`, [email, phone]);
+return result.rows[0].exists;
+}
+
+export async function createUser(user: Partial<User>): Promise<User> {
     const [row] = await db("users").insert({
         email: user.email,
         phone: user.phone,
+        name: user.name,
         password_hash: user.passwordHash,
         system_role: user.systemRole,
         created_at: user.createdAt,

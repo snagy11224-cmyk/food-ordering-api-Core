@@ -4,6 +4,7 @@ export class User {
     id: number;   
     email: string;  
     phone: string;
+    name:string;
     passwordHash: string;
     systemRole: SystemRole;
     deletedAt: Date | null;
@@ -14,6 +15,7 @@ export class User {
     this.id = data.id !;
     this.email = data.email !;    
     this.phone = data.phone!;
+    this.name= data.name!;
     this.passwordHash = data.passwordHash !;
     this.systemRole = data.systemRole !;
     this.deletedAt = data.deletedAt ?? null;  

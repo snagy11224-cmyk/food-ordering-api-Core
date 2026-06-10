@@ -1,18 +1,78 @@
-import { registerDto } from '../dto/auth.dto';
-import { findUserByEmail } from '../../user/repository/users.repo';
+import { registerDto } from "../dto/auth.dto";
+import {
+  findUserExistsByEmailOrPhone,
+  createUser,
+} from "../../user/repository/users.repo";
+import {
+  userAlreadyExistsError,
+  cantSignUPAsSystemAdmin,
+} from "../errors";
+import {
+  createAccessToken,
+  createRefreshToken,
+  hashPassword,
+} from "../utils";
+import { SystemRole } from "../../user/enums";
+
+type RegisterResponse = {
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    id: number;
+    email: string;
+    phone: string;
+    systemRole: SystemRole;
+  };
+};
+
 export class AuthService {
-register : (data: registerDto) => Promise<void> = async (data: registerDto): Promise<void> => {
-//1. check if user with email or phone already exists, if yes throw error
-const existing = await findUserByEmail(data.email);
+  register = async (data: registerDto): Promise<RegisterResponse> => {
+    if (data.role === SystemRole.SYSTEM_ADMIN) {
+      throw cantSignUPAsSystemAdmin;
+    }
 
-//2. else hash the password
+    const existing = await findUserExistsByEmailOrPhone(
+      data.email,
+      data.phone
+    );
 
-//3. create user in database
+    if (existing) {
+      throw userAlreadyExistsError;
+    }
 
-//4. create jwt token and return to user
+    const hashedPassword = await hashPassword(data.password);
+    const now = new Date();
 
-//5. return user data and tokens
+    const user = await createUser({
+      email: data.email,
+      phone: data.phone,
+      name: data.name,
+      passwordHash: hashedPassword,
+      systemRole: data.role ?? SystemRole.CUSTOMER,
+      createdAt: now,
+      updatedAt: now,
+    });
 
-  }
-    
+    const payload = {
+      userId: user.id,
+      role: user.systemRole,
+      email: user.email,
+    };
+
+    const accessToken = createAccessToken(payload);
+    const refreshToken = createRefreshToken(payload);
+
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        systemRole: user.systemRole,
+      },
+    };
+  };
 }
+
+export const authService=new AuthService();
