@@ -1,8 +1,9 @@
+import { env } from '../../../common/config/env';
 import { NextFunction, Request, Response } from 'express';
 import { authService, AuthService } from './../service/auth.service';
 import { validateBody } from '../../../common/validation/validate';
 import { forgetPasswordDTO, loginDto, registerDto, resetPasswordDTO } from '../dto/auth.dto';
-
+import {setAccessTokenCookie, setRefreshTokenCookie} from '../../../common/cookies/auth.cookies'
 export class AuthController {
   constructor(
     private readonly authService: AuthService
@@ -20,18 +21,9 @@ export class AuthController {
         const result=await this.authService.register(data);
         //3-respond
         //set cookie in the res headers
-        res.cookie("access-token",result.accessToken,{
-            httpOnly:true,
-            secure:process.env.NODE_ENV==='production',
-            maxAge:60*60*1000
-        })
+        setAccessTokenCookie(res, env.jwt.accessSecret);
+        setRefreshTokenCookie(res, env.jwt.refreshSecret); 
 
-        res.cookie("refresh-token",result.refreshToken,{
-            httpOnly:true,
-            secure:process.env.NODE_ENV==='production',
-            maxAge:7*24*60*60*1000,
-            path:'/api/auth/refresh'
-        })
         res.status(201).json(result);
 
     } catch (err) {
@@ -49,19 +41,12 @@ export class AuthController {
         const data= await validateBody(loginDto,req.body);
         //2-call service
         const result=await this.authService.login(data);
-        //set cookie in the res headers
-        res.cookie("access-token",result.accessToken,{
-            httpOnly:true,
-            secure:process.env.NODE_ENV==='production',
-            maxAge:60*60*1000
-        })
 
-        res.cookie("refresh-token",result.refreshToken,{
-            httpOnly:true,
-            secure:process.env.NODE_ENV==='production',
-            maxAge:7*24*60*60*1000,
-            path:'/api/auth/refresh'
-        })
+        
+        //set cookie in the res 
+        setAccessTokenCookie(res, env.jwt.accessSecret);
+        setRefreshTokenCookie(res, env.jwt.refreshSecret);
+
         //3-respond
         res.status(200).json(result);
 

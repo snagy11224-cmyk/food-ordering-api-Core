@@ -18,6 +18,12 @@ catch(err){
 next(err);
 }
 } 
+
+
+
+//update user
+
+
 }
 
 export const userController=new UserController(userService);
