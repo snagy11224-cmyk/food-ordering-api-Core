@@ -4,6 +4,11 @@ import { verifyAccessToken } from '../../app/auth/utils';
 
 export function authenticate(req:Request,res:Response,next:NextFunction) {
     const token = req.cookies["access-token"];
+
+        console.log("AUTH HEADER:", req.headers.authorization);
+        console.log("COOKIES:", req.cookies);
+        console.log("TOKEN RECEIVED:", token);
+
     if(!token)
     {
         throw notAuthenticatedError;

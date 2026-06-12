@@ -19,6 +19,7 @@ import {
   generateOTP,
   hashOTP,
   hashPassword,
+  verifyRefreshToken
 } from "../utils";
 import { SystemRole } from "../../user/enums";
 import { createPasswordReset, findLatestPasswordResetByUserId, updatePasswordResetConsumedAt } from "../repository/repo.pasword.reset";
@@ -176,6 +177,22 @@ const newHashPassword=await hashPassword(data.newPassword);
 await updateUserPassword(user.id,newHashPassword);
 //update reset password
 await updatePasswordResetConsumedAt(reset.id);
+}
+
+//refresh 
+refreshToken = async (refreshToken: string) => { 
+ // verify refresh token
+const payload = verifyRefreshToken(refreshToken); 
+ // generate new access token 
+ const accessToken=createAccessToken(
+    {
+    userId: payload.userId,
+    email: payload.email,
+    role: payload.role,
+  }
+ );
+ // return new access token
+ return {accessToken};
 }
 
 

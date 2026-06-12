@@ -4,6 +4,8 @@ import { authService, AuthService } from './../service/auth.service';
 import { validateBody } from '../../../common/validation/validate';
 import { forgetPasswordDTO, loginDto, registerDto, resetPasswordDTO } from '../dto/auth.dto';
 import {setAccessTokenCookie, setRefreshTokenCookie} from '../../../common/cookies/auth.cookies'
+import {UnauthorizedError} from '../errors'
+
 export class AuthController {
   constructor(
     private readonly authService: AuthService
@@ -21,8 +23,8 @@ export class AuthController {
         const result=await this.authService.register(data);
         //3-respond
         //set cookie in the res headers
-        setAccessTokenCookie(res, env.jwt.accessSecret);
-        setRefreshTokenCookie(res, env.jwt.refreshSecret); 
+        setAccessTokenCookie(res, result.accessToken);
+        setRefreshTokenCookie(res, result.refreshToken); 
 
         res.status(201).json(result);
 
@@ -44,8 +46,8 @@ export class AuthController {
 
         
         //set cookie in the res 
-        setAccessTokenCookie(res, env.jwt.accessSecret);
-        setRefreshTokenCookie(res, env.jwt.refreshSecret);
+        setAccessTokenCookie(res, result.accessToken);
+        setRefreshTokenCookie(res, result.refreshToken);
 
         //3-respond
         res.status(200).json(result);
@@ -95,7 +97,26 @@ res.status(200).json(
 
   };
 
+
   //refresh token endpoint
+  refreshToken = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+try{
+const refreshToken = req.cookies["refresh-token"];
+ if (!refreshToken) 
+    { 
+    throw  UnauthorizedError;
+
+     } 
+const result = await authService.refreshToken(refreshToken);
+res.status(200).json(result);
+}catch (err) {
+      next(err);
+    }
+};
 
 }
 export const authController=new AuthController(authService);

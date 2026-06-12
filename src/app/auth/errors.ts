@@ -7,4 +7,4 @@ export const cantSignUPAsSystemAdmin = new AppError('You can not register as a s
 export const incorrectCredentialsError  = new AppError('incorrect email or password',401);
 export const paswordMismatchError =new AppError('Pssword mismatch',400);
 export const invalidOTPError =new AppError('invalid OTP',400);
- 
+export const UnauthorizedError = new AppError('Refresh token is missing',400)
