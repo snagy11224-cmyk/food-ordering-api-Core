@@ -19,6 +19,19 @@ export class AuthController {
         //2-call service
         const result=await this.authService.register(data);
         //3-respond
+        //set cookie in the res headers
+        res.cookie("access-token",result.accessToken,{
+            httpOnly:true,
+            secure:process.env.NODE_ENV==='production',
+            maxAge:60*60*1000
+        })
+
+        res.cookie("refresh-token",result.refreshToken,{
+            httpOnly:true,
+            secure:process.env.NODE_ENV==='production',
+            maxAge:7*24*60*60*1000,
+            path:'/api/auth/refresh'
+        })
         res.status(201).json(result);
 
     } catch (err) {
@@ -36,6 +49,19 @@ export class AuthController {
         const data= await validateBody(loginDto,req.body);
         //2-call service
         const result=await this.authService.login(data);
+        //set cookie in the res headers
+        res.cookie("access-token",result.accessToken,{
+            httpOnly:true,
+            secure:process.env.NODE_ENV==='production',
+            maxAge:60*60*1000
+        })
+
+        res.cookie("refresh-token",result.refreshToken,{
+            httpOnly:true,
+            secure:process.env.NODE_ENV==='production',
+            maxAge:7*24*60*60*1000,
+            path:'/api/auth/refresh'
+        })
         //3-respond
         res.status(200).json(result);
 
@@ -84,6 +110,7 @@ res.status(200).json(
 
   };
 
+  //refresh token endpoint
 
 }
 export const authController=new AuthController(authService);

@@ -1,4 +1,3 @@
-import { Extension } from './../../../../node_modules/libphonenumber-js/types.d';
 import { db } from "../../../common/knex/knex";
 import { User } from "../entity/user.entity";
 
@@ -37,6 +36,16 @@ export async function findUserByEmail(email: string): Promise<User | undefined> 
     return row ? toEntity(row) : undefined;
 }
 
+
+export async function findUserById(id: number): Promise<User | undefined> {
+    const row = await db("users").select(USER_COLUMNS).where({ "id": id }).whereNull("deleted_at").first();
+    if (!row) {
+        return undefined;
+    }
+    console.log("row", row);
+    return row ? toEntity(row) : undefined;
+}
+
 export async function findUserExistsByEmailOrPhone(email: string, phone: string): Promise<boolean> {
 const result = await db.raw(`SELECT EXISTS(select 1 from users where email=? or phone=?) AS "exists"`, [email, phone]);
 return result.rows[0].exists;
@@ -65,3 +74,4 @@ export async function createUser(user: Partial<User>): Promise<User> {
 export async function updateUserPassword(id:number,password:string): Promise<void> {
     await db("users").where("id",id).update({password_hash:password});
 }
+

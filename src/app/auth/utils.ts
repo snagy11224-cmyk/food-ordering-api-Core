@@ -1,3 +1,4 @@
+import { JwtPayload, Secret } from './../../../node_modules/@types/jsonwebtoken/index.d';
 import bcrypt from "bcrypt";
 import jwt, { SignOptions } from "jsonwebtoken";
 import { env } from "../../common/config/env";
@@ -41,4 +42,17 @@ export function generateOTP() :string{
 export function hashOTP(otp:string) {
     return crypto.createHash("sha256").update(otp).digest("hex")
 
+}
+
+export function verifyAccessToken(token:string): AuthJwtPayload {
+  return jwt.verify(
+    token,
+    env.jwt.accessSecret
+  ) as AuthJwtPayload;
+}
+export function verifyRefreshToken(token:string): AuthJwtPayload {
+  return jwt.verify(
+    token,
+    env.jwt.refreshSecret
+  ) as AuthJwtPayload;
 }
