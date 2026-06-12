@@ -1,14 +1,16 @@
-import { forgetPasswordDTO, loginDto, registerDto } from "../dto/auth.dto";
+import { forgetPasswordDTO, loginDto, registerDto, resetPasswordDTO } from "../dto/auth.dto";
 import {
   findUserExistsByEmailOrPhone,
   createUser,
   findUserByEmail,
+  updateUserPassword,
 } from "../../user/repository/users.repo";
 import {
     paswordMismatchError,
   userAlreadyExistsError,
   cantSignUPAsSystemAdmin,
-  incorrectCredentialsError
+  incorrectCredentialsError,
+  invalidOTPError
 } from "../errors";
 import {
   comparePasswords,
@@ -19,7 +21,7 @@ import {
   hashPassword,
 } from "../utils";
 import { SystemRole } from "../../user/enums";
-import { createPasswordReset } from "../repository/repo.pasword.reset";
+import { createPasswordReset, findLatestPasswordResetByUserId, updatePasswordResetConsumedAt } from "../repository/repo.pasword.reset";
 
 
 /*type LoginResponse ={
@@ -149,6 +151,33 @@ await createPasswordReset({
 console.log(`mocked emaiil sent ${otp}`);
 
 }
+
+
+
+resetPassword = async (data: resetPasswordDTO) => { 
+//find user
+const user= await findUserByEmail(data.email);
+if(!user){
+    throw invalidOTPError;
+}
+//find reset password
+const reset =await findLatestPasswordResetByUserId(user.id);
+if (!reset){
+    throw invalidOTPError;
+}
+//verify otp and expiry date
+const inputOtpHash=hashOTP(data.otp);
+if(inputOtpHash != reset.otpHash || reset.isExpired())
+{
+    throw invalidOTPError;
+}
+//update user password 
+const newHashPassword=await hashPassword(data.newPassword);
+await updateUserPassword(user.id,newHashPassword);
+//update reset password
+await updatePasswordResetConsumedAt(reset.id);
+}
+
 
 
 }

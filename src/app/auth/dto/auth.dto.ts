@@ -1,5 +1,5 @@
 import { SystemRole } from './../../user/enums';
-import { IsEmail, isEnum, IsString, IsStrongPassword, MaxLength, MinLength , IsEnum, IsNotEmpty} from "class-validator";
+import { IsEmail, IsString, IsStrongPassword, MaxLength, MinLength , IsEnum, IsNotEmpty, Length} from "class-validator";
 
 export class registerDto{
     @IsEmail()
@@ -40,4 +40,23 @@ export class loginDto{
 export class forgetPasswordDTO{
     @IsEmail()
     email!: string;
+}
+
+export class resetPasswordDTO{
+    @IsEmail()
+    email!: string;
+
+    @IsString()
+    @Length(6)
+    otp!:string
+
+    @IsString()
+    @IsStrongPassword({
+        minLength: 6,
+        minLowercase: 1,
+        minUppercase: 1,
+        minNumbers: 1,
+        minSymbols: 1
+    },{message:"Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, one number and one symbol"})
+    newPassword!: string;
 }

@@ -6,7 +6,7 @@ const PASSWORD_RESET_COLUMNS = [
     "user_id",    
     "otp_hash",
     "expires_at",
-    "cinsumed_at",
+    "consumed_at",
     "created_at"
 ]
 
@@ -30,4 +30,15 @@ expires_at:PasswordReset.expiresAt,
 consumed_at:PasswordReset.consumedAt,
 created_at:PasswordReset.createdAt
 })
+}
+
+export async function findLatestPasswordResetByUserId (userId:number): Promise <PasswordReset | undefined>{
+const row= await db("password_resets").select(PASSWORD_RESET_COLUMNS).where("user_id",userId).whereNull("consumed_at").orderBy("id","desc").first();
+return toEntity(row);
+}
+
+export async function updatePasswordResetConsumedAt(id:number) : Promise <void>{
+await db("password_resets").where("id",id).update({
+consumed_at:new Date()
+});
 }

@@ -60,3 +60,8 @@ export async function createUser(user: Partial<User>): Promise<User> {
     }).returning(USER_COLUMNS);
     return toEntity(row);
 }
+
+
+export async function updateUserPassword(id:number,password:string): Promise<void> {
+    await db("users").where("id",id).update({password_hash:password});
+}

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { authService, AuthService } from './../service/auth.service';
 import { validateBody } from '../../../common/validation/validate';
-import { forgetPasswordDTO, loginDto, registerDto } from '../dto/auth.dto';
+import { forgetPasswordDTO, loginDto, registerDto, resetPasswordDTO } from '../dto/auth.dto';
 
 export class AuthController {
   constructor(
@@ -62,6 +62,28 @@ res.status(200).json(
       next(err);
     }
 
-  }
+  };
+
+
+
+ resetPassword = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+try{
+//validate body
+const data=await validateBody(resetPasswordDTO,req.body);
+await this.authService.resetPassword(data);
+res.status(200).json(
+    {"message":"password reset successfully, please login again"}
+)
+}catch (err) {
+      next(err);
+    }
+
+  };
+
+
 }
 export const authController=new AuthController(authService);
