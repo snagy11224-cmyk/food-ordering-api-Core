@@ -112,7 +112,10 @@ const refreshToken = req.cookies["refresh-token"];
 
      } 
 const result = await authService.refreshToken(refreshToken);
-res.status(200).json(result);
+res.status(200).json(
+   {  message: "success",
+      } 
+) ;
 }catch (err) {
       next(err);
     }
