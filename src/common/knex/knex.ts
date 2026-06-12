@@ -1,20 +1,6 @@
 import config from "./knexFile.js";
 import knex from "knex";
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const db = knex(config);
 
 /*export async function pingDB() {

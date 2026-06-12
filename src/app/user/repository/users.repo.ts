@@ -42,6 +42,11 @@ const result = await db.raw(`SELECT EXISTS(select 1 from users where email=? or 
 return result.rows[0].exists;
 }
 
+export async function findUserExistsByEmail(email: string): Promise<boolean> {
+const result = await db.raw(`SELECT EXISTS(select 1 from users where email=?) AS "exists"`, [email]);
+return result.rows[0].exists;
+}
+
 export async function createUser(user: Partial<User>): Promise<User> {
     const [row] = await db("users").insert({
         email: user.email,

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { authService, AuthService } from './../service/auth.service';
 import { validateBody } from '../../../common/validation/validate';
-import { loginDto, registerDto } from '../dto/auth.dto';
+import { forgetPasswordDTO, loginDto, registerDto } from '../dto/auth.dto';
 
 export class AuthController {
   constructor(
@@ -44,5 +44,24 @@ export class AuthController {
     }
   };
 
+
+
+  forgetPassword = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+try{
+//validate body
+const data=await validateBody(forgetPasswordDTO,req.body);
+await this.authService.forgetPassword(data);
+res.status(200).json(
+    {"message":"Email Reset with OTP"}
+)
+}catch (err) {
+      next(err);
+    }
+
+  }
 }
 export const authController=new AuthController(authService);

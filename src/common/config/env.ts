@@ -3,7 +3,7 @@ import { config } from "dotenv";
 import { z } from "zod";
 import path from "path";
 
-config({ path: path.resolve(process.cwd(), ".env") });
+config({ path: path.resolve(__dirname, "../../../.env") });
 
 //console.log("DOTENV RESULT:", result);
 //console.log("DB_USER:", process.env.DB_USER);
@@ -39,7 +39,7 @@ export const env = {
     password: parsedEnv.DB_PASSWORD,
     name: parsedEnv.DB_NAME,
     poolMax: Number(parsedEnv.DB_POOL_MAX),
-    migrationsDir: path.resolve(process.cwd(), parsedEnv.DB_MIGRATIONS_DIR),
+    migrationsDir: path.resolve(path.dirname(__dirname),"../../", parsedEnv.DB_MIGRATIONS_DIR),
     migrationExtension: parsedEnv.DB_MIGRATION_EXTENSION,
   },
   jwt:{
@@ -48,4 +48,5 @@ export const env = {
     accessExpires: parsedEnv.ACCESS_EXPIRES,
     refreshExpires: parsedEnv.REFRESH_EXPIRES
   }
-};
+
+};   console.log(env.db.migrationsDir);

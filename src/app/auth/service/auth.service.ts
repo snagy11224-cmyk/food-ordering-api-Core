@@ -1,4 +1,4 @@
-import { loginDto, registerDto } from "../dto/auth.dto";
+import { forgetPasswordDTO, loginDto, registerDto } from "../dto/auth.dto";
 import {
   findUserExistsByEmailOrPhone,
   createUser,
@@ -14,9 +14,12 @@ import {
   comparePasswords,
   createAccessToken,
   createRefreshToken,
+  generateOTP,
+  hashOTP,
   hashPassword,
 } from "../utils";
 import { SystemRole } from "../../user/enums";
+import { createPasswordReset } from "../repository/repo.pasword.reset";
 
 
 /*type LoginResponse ={
@@ -123,6 +126,27 @@ login= async (data: loginDto): Promise<RegisterResponse> => {
         createdAt:user.createdAt
       },
     };
+
+}
+
+
+forgetPassword = async (data: forgetPasswordDTO) => { 
+//check id user exists
+ const user= await findUserByEmail(data.email);
+ if(!user){return;}
+//generate an otp
+const otp= generateOTP();
+//hash the otp 
+const hashedOtp= hashOTP(otp)
+//insert the otp
+await createPasswordReset({
+    userId:user.id,
+    otpHash:hashedOtp,
+    expiresAt:new Date(Date.now()+10*60*60*1000),
+    createdAt:new Date()
+})
+//send email 
+console.log(`mocked emaiil sent ${otp}`);
 
 }
 
