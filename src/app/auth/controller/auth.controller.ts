@@ -1,4 +1,3 @@
-import { env } from '../../../common/config/env';
 import { NextFunction, Request, Response } from 'express';
 import { authService, AuthService } from './../service/auth.service';
 import { validateBody } from '../../../common/validation/validate';

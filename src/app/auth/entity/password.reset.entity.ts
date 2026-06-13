@@ -4,7 +4,7 @@ export class PasswordReset {
   otpHash: string;
   expiresAt: Date; 
   consumedAt?: Date|null;          
- createdAt: Date;
+  createdAt: Date;
 
  constructor(data: Partial<PasswordReset>) {
     this.id = data.id!;
