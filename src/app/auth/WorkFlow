@@ -1,7 +1,7 @@
 1- DB migrations
 2- implement bottom up approach
     2.1- create entity classes that represent DB
-    2.2- create repository queries
+    2.2- create repository queries 
     3.3- create service functions
     3.4- create controllers
     3.5- create routes

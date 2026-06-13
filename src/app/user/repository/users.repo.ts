@@ -13,6 +13,14 @@ const USER_COLUMNS = [
     "updated_at as updatedAt"
 ]
 
+type UpdatedUser = {
+  id: number;
+  email: string;
+  phone: string;
+  name: string;
+  systemRole: string;
+};
+
 function toEntity(row: any): User {
     return new User({
         id: row.id,
@@ -75,3 +83,21 @@ export async function updateUserPassword(id:number,password:string): Promise<voi
     await db("users").where("id",id).update({password_hash:password});
 }
 
+export async function updateUserData(id:number, data:{name?:string,phone?:string}): Promise<UpdatedUser> {
+    const [user] = await db("users").where("id",id).update({...data, updated_at: new Date() })
+    .returning([
+      "id",
+      "email",
+      "phone",
+      "name",
+      "system_role",
+    ]);
+
+    return user;
+}
+
+export async function findUserByPhone(phone: string) {
+  return db("users")
+    .where("phone", phone)
+    .first();
+}
