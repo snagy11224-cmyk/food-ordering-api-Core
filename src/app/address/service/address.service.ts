@@ -1,6 +1,6 @@
 import { CreateAddressDTO, UpdateAddressDTO } from '../dto/address.dto';
 import {AddressType} from '../enums';
-import {findAddressesByUserId, insertCustomerAddressTransaction , updateCustomerAddresses} from'../repository/address.repo';
+import {deleteCustomerAddress, findAddressesByUserId, insertCustomerAddressTransaction , updateCustomerAddresses} from'../repository/address.repo';
 import {addressNotFoundError} from '../errors';
 
 type AddressResponse = {
@@ -23,6 +23,10 @@ type GetAddressResponse = {
  export type AddressMutationResponse  = {
   message: string;
   address: AddressResponse;
+};
+
+type DeleteAddressResponse = {
+  message: string;
 };
 
 export class AddressService {
@@ -105,6 +109,27 @@ updateCustomerAddress = async (userId: number,addressId: number,data: UpdateAddr
 }
 }
 }
+
+
+deleteCustomerAddress = async (
+  userId: number,
+  addressId: number
+): Promise<DeleteAddressResponse> => {
+  //call delete address from repo
+  const deleted = await deleteCustomerAddress(userId, addressId);
+
+  //address exists?
+  if (!deleted) {
+    throw addressNotFoundError;
+  }
+
+  //return result
+  return {
+    message: "Address deleted",
+  };
+};
+
+
 
 }
 export const addressService=new AddressService();

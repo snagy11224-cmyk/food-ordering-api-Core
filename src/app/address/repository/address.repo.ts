@@ -151,3 +151,21 @@ export async function updateCustomerAddresses(userId: number, addressId: number,
 
   return row ? toEntity(row) : null;
 }
+
+
+
+//delete address
+export async function deleteCustomerAddress(
+  userId: number,
+  addressId: number
+): Promise<boolean> {
+
+  const deletedCount = await db("customer_addresses")
+    .where({
+      id: addressId,
+      user_id: userId,
+    })
+    .del();
+
+  return deletedCount > 0;
+}

@@ -66,6 +66,30 @@ res.status(200).json(result);
   
 
 
+    deleteCustomerAddress = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user!.userId;
+
+    const addressId = Number(req.params.addressId);
+
+    const result =
+      await this.addressService.deleteCustomerAddress(
+        userId,
+        addressId
+      );
+
+    res.status(200).json(result);
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+
 }
 
 export const addressController=new AddressController(addressService);
