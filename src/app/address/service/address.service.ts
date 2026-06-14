@@ -1,6 +1,6 @@
 import { CreateAddressDTO } from '../dto/address.dto';
 import {AddressType} from '../enums';
-import {findAddressesByUserId, insertCustomerAddress} from'../repository/address.repo';
+import {findAddressesByUserId, insertCustomerAddressTransaction} from'../repository/address.repo';
 type AddressResponse = {
   id: number;  
   label: string;
@@ -54,12 +54,11 @@ export class AddressService {
 
 
   
-//add customer address  
  addCustomerAddress = async (userId: number, data: CreateAddressDTO): Promise<CreateAddressResponse> => { 
     //call create address from repo 
-    const row=await insertCustomerAddress(userId,data);
+    const row=await insertCustomerAddressTransaction(userId,data);
     //return result
-return{
+  return{
     message:"Address Added",
     address: {
     id: row.id,

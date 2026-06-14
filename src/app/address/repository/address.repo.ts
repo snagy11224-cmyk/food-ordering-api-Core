@@ -1,5 +1,7 @@
-import { CustomerAddress } from "../entity/address.entity"
-import {db} from "../../../common/knex/knex"
+import { CustomerAddress } from "../entity/address.entity";
+import {db} from "../../../common/knex/knex";
+import {addressAlreadyExistsError} from '../errors';
+
 
 const CUSTOMER_ADDRESS_COLUMNS=[
     "id",
@@ -47,28 +49,84 @@ export async function findAddressesByUserId(userId: number) {
 
     return rows.map(toEntity);
 }
-//post customer address
-export async function insertCustomerAddress(userId: number, customerAddress:Partial<CustomerAddress>): Promise<CustomerAddress> {
-  const [row]= await db("customer_addresses")
-    .insert(
-        {
-        user_id: userId,  
-        address_line1:customerAddress.addressLine1,
-        label:customerAddress.label,
-        country:customerAddress.country ,
+
+
+
+//post customer address with transaction to prevent race conditions
+export async function insertCustomerAddressTransaction(
+  userId: number,
+  customerAddress: Partial<CustomerAddress>
+): Promise<CustomerAddress> {
+
+  return db.transaction(async (trx) => {
+
+    //lock user row so concurrent requests for the same user wait for each other
+    await trx.raw(
+      `SELECT id FROM users WHERE id = ? FOR UPDATE`,
+      [userId]
+    );
+
+    //check if this address is already there
+    const duplicateRow = await trx("customer_addresses")
+      .where({
+        user_id: userId,
+        country: customerAddress.country,
         city: customerAddress.city,
-        street:customerAddress.street,
-        building:customerAddress.building , 
-        apartment_number:customerAddress.apartmentNumber,
-        type:customerAddress.type,
+        street: customerAddress.street,
+        building: customerAddress.building ?? null,
+        apartment_number: customerAddress.apartmentNumber ?? null,
+      })
+      .first(CUSTOMER_ADDRESS_COLUMNS);
+
+    if (duplicateRow) {
+      throw addressAlreadyExistsError;
+    }
+
+    //check if this is the first address for this user
+    const countRow = await trx("customer_addresses")
+      .where("user_id", userId)
+      .count<{ count: string }>("id as count")
+      .first();
+
+    const isFirstAddress =
+      Number(countRow?.count ?? 0) === 0;
+
+    //first address must always be default
+    const shouldBeDefault =
+      isFirstAddress ||
+      customerAddress.isDefault === true;
+
+    //remove existing default address before creating a new default one
+    if (shouldBeDefault && !isFirstAddress) {
+      await trx("customer_addresses")
+        .where("user_id", userId)
+        .update({
+          is_default: false,
+          updated_at: new Date(),
+        });
+    }
+
+    //create customer address
+    const [row] = await trx("customer_addresses")
+      .insert({
+        user_id: userId,
+        address_line1: customerAddress.addressLine1,
+        label: customerAddress.label,
+        country: customerAddress.country,
+        city: customerAddress.city,
+        street: customerAddress.street,
+        building: customerAddress.building,
+        apartment_number: customerAddress.apartmentNumber,
+        type: customerAddress.type,
         lat: customerAddress.lat,
         lng: customerAddress.lng,
-        is_default: customerAddress.isDefault,
-        }
-    ).returning(CUSTOMER_ADDRESS_COLUMNS);
+        is_default: shouldBeDefault,
+      })
+      .returning(CUSTOMER_ADDRESS_COLUMNS);
 
-  return toEntity(row);
+    //map database row to entity
+    return toEntity(row);
+  });
 }
-
 
 //patch/update customer address
