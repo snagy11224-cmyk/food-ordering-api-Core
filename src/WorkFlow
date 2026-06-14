@@ -1,10 +1,10 @@
 1- DB migrations
 2- implement bottom up approach
     2.1- create entity classes that represent DB
-    2.2- create repository queries 
-    3.3- create service functions
-    3.4- create controllers
-    3.5- create routes
+        2.2- create repository queries 
+        3.3- create service functions
+        3.4- create controllers
+        3.5- create routes
     3.7- insert into 'src/routes' -- if it's the first time to create the router in the module   
     3.7- test 
 3- repeat same flow with other endpoints 

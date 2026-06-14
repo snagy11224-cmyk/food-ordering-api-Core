@@ -1,5 +1,6 @@
+import { CreateAddressDTO } from '../dto/address.dto';
 import {AddressType} from '../enums';
-import {findAddressesByUserId} from'../repository/address.repo';
+import {findAddressesByUserId, insertCustomerAddress} from'../repository/address.repo';
 type AddressResponse = {
   id: number;  
   label: string;
@@ -17,10 +18,14 @@ type AddressResponse = {
 type GetAddressResponse = {
   data: AddressResponse[];
 };
+type CreateAddressResponse = {
+  message: string;
+  address: AddressResponse;
+};
 
 export class AddressService {
 
-
+//get customer address logic 
   getCustomerAddresses = async (userId:number): Promise<GetAddressResponse> => {
 
     //call get address details funstion mn repo 
@@ -48,6 +53,29 @@ export class AddressService {
 
 
 
+  
+//add customer address  
+ addCustomerAddress = async (userId: number, data: CreateAddressDTO): Promise<CreateAddressResponse> => { 
+    //call create address from repo 
+    const row=await insertCustomerAddress(userId,data);
+    //return result
+return{
+    message:"Address Added",
+    address: {
+    id: row.id,
+    label: row.label,
+    country: row.country,
+    city: row.city,
+    street: row.street,
+    building: row.building,
+    apartmentNumber: row.apartmentNumber,
+    type: row.type,
+    lat: row.lat,
+    lng: row.lng,
+    isDefault: row.isDefault,
+}
+}
 }
 
+}
 export const addressService=new AddressService();

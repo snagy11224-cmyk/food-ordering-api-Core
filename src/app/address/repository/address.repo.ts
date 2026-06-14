@@ -47,5 +47,28 @@ export async function findAddressesByUserId(userId: number) {
 
     return rows.map(toEntity);
 }
-//add customer address
-//update customer address
+//post customer address
+export async function insertCustomerAddress(userId: number, customerAddress:Partial<CustomerAddress>): Promise<CustomerAddress> {
+  const [row]= await db("customer_addresses")
+    .insert(
+        {
+        user_id: userId,  
+        address_line1:customerAddress.addressLine1,
+        label:customerAddress.label,
+        country:customerAddress.country ,
+        city: customerAddress.city,
+        street:customerAddress.street,
+        building:customerAddress.building , 
+        apartment_number:customerAddress.apartmentNumber,
+        type:customerAddress.type,
+        lat: customerAddress.lat,
+        lng: customerAddress.lng,
+        is_default: customerAddress.isDefault,
+        }
+    ).returning(CUSTOMER_ADDRESS_COLUMNS);
+
+  return toEntity(row);
+}
+
+
+//patch/update customer address
