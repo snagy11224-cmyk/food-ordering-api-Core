@@ -1,6 +1,8 @@
-import { CreateAddressDTO } from '../dto/address.dto';
+import { CreateAddressDTO, UpdateAddressDTO } from '../dto/address.dto';
 import {AddressType} from '../enums';
-import {findAddressesByUserId, insertCustomerAddressTransaction} from'../repository/address.repo';
+import {findAddressesByUserId, insertCustomerAddressTransaction , updateCustomerAddresses} from'../repository/address.repo';
+import {addressNotFoundError} from '../errors';
+
 type AddressResponse = {
   id: number;  
   label: string;
@@ -18,7 +20,7 @@ type AddressResponse = {
 type GetAddressResponse = {
   data: AddressResponse[];
 };
-type CreateAddressResponse = {
+ export type AddressMutationResponse  = {
   message: string;
   address: AddressResponse;
 };
@@ -54,7 +56,7 @@ export class AddressService {
 
 
   
- addCustomerAddress = async (userId: number, data: CreateAddressDTO): Promise<CreateAddressResponse> => { 
+ addCustomerAddress = async (userId: number, data: CreateAddressDTO): Promise<AddressMutationResponse > => { 
     //call create address from repo 
     const row=await insertCustomerAddressTransaction(userId,data);
     //return result
@@ -72,6 +74,34 @@ export class AddressService {
     lat: row.lat,
     lng: row.lng,
     isDefault: row.isDefault,
+}
+}
+}
+
+
+updateCustomerAddress = async (userId: number,addressId: number,data: UpdateAddressDTO): Promise<AddressMutationResponse > => { 
+    //call update address from repo 
+    const address=await updateCustomerAddresses(userId,addressId,data);
+
+    //address exists?
+    if (!address) {
+  throw addressNotFoundError;
+}
+    //return result
+  return{
+    message:"Address updated",
+    address: {
+    id: address.id,
+    label: address.label,
+    country: address.country,
+    city: address.city,
+    street: address.street,
+    building: address.building,
+    apartmentNumber: address.apartmentNumber,
+    type: address.type,
+    lat: address.lat,
+    lng: address.lng,
+    isDefault: address.isDefault,
 }
 }
 }

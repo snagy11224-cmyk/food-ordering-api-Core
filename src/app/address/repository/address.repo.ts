@@ -2,7 +2,6 @@ import { CustomerAddress } from "../entity/address.entity";
 import {db} from "../../../common/knex/knex";
 import {addressAlreadyExistsError} from '../errors';
 
-
 const CUSTOMER_ADDRESS_COLUMNS=[
     "id",
     "user_id",
@@ -20,6 +19,9 @@ const CUSTOMER_ADDRESS_COLUMNS=[
     "created_at",
     "updated_at"
 ]
+
+
+
 function toEntity(row: any): CustomerAddress {
     return new CustomerAddress({
         id: row.id,
@@ -130,3 +132,22 @@ export async function insertCustomerAddressTransaction(
 }
 
 //patch/update customer address
+export async function updateCustomerAddresses(userId: number, addressId: number, data: Partial<CustomerAddress>): Promise<CustomerAddress|null> {
+ const [row] = await db("customer_addresses").where({id:addressId , user_id: userId}).update(
+    {
+      label: data.label,
+      country: data.country,
+      city: data.city,
+      street: data.street,
+      building: data.building,
+      apartment_number: data.apartmentNumber,
+      type: data.type,
+      lat: data.lat,
+      lng: data.lng,
+      updated_at: new Date(),
+    }
+ )
+    .returning(CUSTOMER_ADDRESS_COLUMNS);
+
+  return row ? toEntity(row) : null;
+}

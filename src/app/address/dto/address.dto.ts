@@ -37,3 +37,34 @@ addressLine1!: string;
   @IsBoolean()
   isDefault!: boolean;
 }
+
+export class UpdateAddressDTO {
+  @IsString()
+  label!: string;
+
+  @IsString()
+  country!: string;
+
+  @IsString()
+  city!: string;
+
+  @IsString()
+  street!: string;
+
+  @IsOptional()
+  @IsString()
+  building?: string;
+
+  @IsOptional()
+  @IsString()
+  apartmentNumber?: string;
+
+  @IsEnum(AddressType)
+  type!: AddressType;
+
+  @IsNumber()
+  lat!: number;
+
+  @IsNumber()
+  lng!: number;
+}
