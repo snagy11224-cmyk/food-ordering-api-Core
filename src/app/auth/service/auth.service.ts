@@ -10,7 +10,8 @@ import {
   userAlreadyExistsError,
   cantSignUPAsSystemAdmin,
   incorrectCredentialsError,
-  invalidOTPError
+  invalidOTPError,
+  restaurantDataRequiredError
 } from "../errors";
 import {
   comparePasswords,
@@ -23,6 +24,8 @@ import {
 } from "../utils";
 import { SystemRole } from "../../user/enums";
 import { createPasswordReset, findLatestPasswordResetByUserId, updatePasswordResetConsumedAt } from "../repository/repo.pasword.reset";
+import { RestaurantService, restaurantService } from "../../restaurant/service/restaurant.service";
+import { Restaurant } from "../../restaurant/entity/restaurant.entity";
 
 
 /*type LoginResponse ={
@@ -40,9 +43,15 @@ type RegisterResponse = {
     systemRole: SystemRole;
     createdAt:Date; 
   };
+   restaurant?: Restaurant;
 };
 
 export class AuthService {
+
+  constructor(private readonly restaurantService:RestaurantService){
+
+  }
+
   register = async (data: registerDto): Promise<RegisterResponse> => {
     if (data.role === SystemRole.SYSTEM_ADMIN) {
       throw cantSignUPAsSystemAdmin;
@@ -72,9 +81,21 @@ export class AuthService {
 
     const payload = {
       userId: user.id,
-      role: data.role,
+      role: user.systemRole,
       email: user.email,
     };
+
+
+//check if the type of user is restaurant 
+// then call restaurant service to create new restaurant\
+let restaurant;
+if(data.role==SystemRole.RESTAURANT_USER){
+  if(data.restaurant==undefined){
+    throw restaurantDataRequiredError;
+  }
+  restaurant=await this.restaurantService.create(user.id,data.restaurant)
+}
+
 
     const accessToken = createAccessToken(payload);
     const refreshToken = createRefreshToken(payload);
@@ -90,8 +111,9 @@ export class AuthService {
         systemRole: user.systemRole,
         createdAt:user.createdAt
       },
-    };
-  };
+      restaurant,
+    }
+  }
 
 login= async (data: loginDto): Promise<RegisterResponse> => { 
     //1- find user by email
@@ -199,4 +221,4 @@ const payload = verifyRefreshToken(refreshToken);
 
 }
 
-export const authService=new AuthService();
+export const authService=new AuthService(restaurantService);

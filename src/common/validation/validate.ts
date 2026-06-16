@@ -1,3 +1,4 @@
+import {  plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 
 export async function validateBody<T extends object>(
@@ -5,7 +6,7 @@ export async function validateBody<T extends object>(
   body: unknown
 ): Promise<T> {
 
-  const instance = Object.assign(new cls(), body);
+  const instance = plainToInstance(cls, body);
 
   const errors = await validate(instance, {
     whitelist: true
