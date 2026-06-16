@@ -1,5 +1,6 @@
 import { Restaurant } from "../entity/restaurant.entity";
 import { db } from "../../../common/knex/knex";
+import { Knex } from "knex";
 
 const RESTAURANT_COLUMNS = [
   "id",
@@ -55,9 +56,9 @@ export async function findRestaurant(
 
 
 
-export async function createRestaurant(data:Partial<Restaurant>): Promise<Restaurant>{
+export async function createRestaurant(data:Partial<Restaurant>, conn:Knex=db): Promise<Restaurant>{
 
-    const [row]=await db("restaurants").insert(
+    const [row]=await conn("restaurants").insert(
         {
             owner_id:data.ownerId,
             name: data.name,

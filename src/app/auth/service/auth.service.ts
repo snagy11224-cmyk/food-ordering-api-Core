@@ -26,6 +26,7 @@ import { SystemRole } from "../../user/enums";
 import { createPasswordReset, findLatestPasswordResetByUserId, updatePasswordResetConsumedAt } from "../repository/repo.pasword.reset";
 import { RestaurantService, restaurantService } from "../../restaurant/service/restaurant.service";
 import { Restaurant } from "../../restaurant/entity/restaurant.entity";
+import { db } from "../../../common/knex/knex";
 
 
 /*type LoginResponse ={
@@ -69,7 +70,16 @@ export class AuthService {
     const hashedPassword = await hashPassword(data.password);
     const now = new Date();
 
-    const user = await createUser({
+
+    
+    //transaction to control user creation either customer or resturant
+    const trx=await db.transaction();
+
+  let user: any;
+  let restaurant: Restaurant | undefined;
+    try{
+    //create user --customer 
+     user = await createUser({
       email: data.email,
       phone: data.phone,
       name: data.name,
@@ -77,24 +87,32 @@ export class AuthService {
       systemRole: data.role ?? SystemRole.CUSTOMER,
       createdAt: now,
       updatedAt: now,
-    });
-
-    const payload = {
-      userId: user.id,
-      role: user.systemRole,
-      email: user.email,
-    };
+    }, trx );
 
 
 //check if the type of user is restaurant 
 // then call restaurant service to create new restaurant\
-let restaurant;
 if(data.role==SystemRole.RESTAURANT_USER){
   if(data.restaurant==undefined){
     throw restaurantDataRequiredError;
   }
-  restaurant=await this.restaurantService.create(user.id,data.restaurant)
+  restaurant=await this.restaurantService.create(user.id,data.restaurant, trx);
 }
+
+  await trx.commit();
+
+    } catch(error){
+//if fails, roll back
+await trx.rollback();
+throw error;
+    };
+
+
+       const payload = {
+      userId: user.id,
+      role: data.role,
+      email: user.email,
+    };
 
 
     const accessToken = createAccessToken(payload);
@@ -167,7 +185,7 @@ const hashedOtp= hashOTP(otp)
 await createPasswordReset({
     userId:user.id,
     otpHash:hashedOtp,
-    expiresAt:new Date(Date.now()+10*60*60*1000),
+    expiresAt:new Date(Date.now()+10*60*1000),
     createdAt:new Date()
 })
 //send email 
