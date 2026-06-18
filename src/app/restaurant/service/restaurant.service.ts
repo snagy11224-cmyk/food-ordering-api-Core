@@ -2,7 +2,7 @@ import { Knex } from "knex";
 import { registerRestaurantDto } from "../../auth/dto/auth.dto";
 import { Restaurant } from "../entity/restaurant.entity";
 import { RestaurantStatus } from "../enums/restaurant.enums";
-import { createRestaurant } from "../repository/restaurant.repo";
+import { createRestaurant, findAllRestaurants } from "../repository/restaurant.repo";
 
 export class RestaurantService{
 
@@ -28,6 +28,13 @@ const restaurant = new Restaurant(
 const result=await createRestaurant(restaurant, trx);
 
 return result;
+}
+
+
+
+findAll=async()=>{
+    const result= await findAllRestaurants();
+    return result;
 }
 
 }
