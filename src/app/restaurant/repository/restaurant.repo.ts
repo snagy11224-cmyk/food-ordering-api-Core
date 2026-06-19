@@ -53,7 +53,16 @@ export async function findRestaurant(
   return toEntity(row);
 }
 
+export async function findRestaurantById(
+  restaurantId: number
+): Promise<Restaurant | null> {
+  const row = await db("restaurants")
+    .select(RESTAURANT_COLUMNS)
+    .where("id", restaurantId)
+    .first();
 
+  return row ? toEntity(row) : null;
+}
 
 
 export async function createRestaurant(data:Partial<Restaurant>, conn:Knex=db): Promise<Restaurant>{

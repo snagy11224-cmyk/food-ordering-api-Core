@@ -9,3 +9,5 @@ export const paswordMismatchError =new AppError('Pssword mismatch',400);
 export const invalidOTPError =new AppError('invalid OTP',400);
 export const UnauthorizedError = new AppError('Refresh token is missing',400)
 export const restaurantDataRequiredError=new AppError('restaurant data is required',400)
+
+export const UserUnauthorizedError = new AppError('you are not authorized',403)
