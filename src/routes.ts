@@ -5,6 +5,7 @@ import { authRouter } from "./app/auth/routes.js";
 import { addressRouter } from './app/address/router';
 import {restaurantRouter} from './app/restaurant/routes'
 import { branchRouter } from './app/branch/routes';
+import { rbacRouter } from './app/rbac/routes';
 
 export const routes = Router();
 routes.use("/health", healthRoutes);
@@ -13,5 +14,7 @@ routes.use('/auth',authRouter);
 routes.use('/customer',addressRouter);
 routes.use('/restaurant',restaurantRouter);
 routes.use('/',branchRouter)
+routes.use('/',rbacRouter)
+
 
 export default routes;

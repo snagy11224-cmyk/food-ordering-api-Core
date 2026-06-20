@@ -182,6 +182,8 @@ const otp= generateOTP();
 //hash the otp 
 const hashedOtp= hashOTP(otp)
 //insert the otp
+
+//const trx=await db.transaction();
 await createPasswordReset({
     userId:user.id,
     otpHash:hashedOtp,
