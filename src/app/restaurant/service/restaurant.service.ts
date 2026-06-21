@@ -3,6 +3,9 @@ import { registerRestaurantDto } from "../../auth/dto/auth.dto";
 import { Restaurant } from "../entity/restaurant.entity";
 import { RestaurantStatus } from "../enums/restaurant.enums";
 import { createRestaurant, findAllRestaurants } from "../repository/restaurant.repo";
+import { RestaurantMember } from "../../rbac/entity/restaurant.member.entity";
+import { MemberStatus } from "../../rbac/enums";
+import { createRestaurantMember } from "../../rbac/repository/restaurant.member.repository";
 
 export class RestaurantService{
 
@@ -36,6 +39,27 @@ findAll=async()=>{
     const result= await findAllRestaurants();
     return result;
 }
+
+createOwner = async (
+  userId: number,
+  restaurantId: number,
+  trx: Knex
+): Promise<RestaurantMember> => {
+  const now = new Date();
+
+  const member = new RestaurantMember({
+    userId,
+    restaurantId,
+    status: MemberStatus.ACTIVE,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  const result = await createRestaurantMember(member, trx);
+
+  return result;
+};
+
 
 }
 
