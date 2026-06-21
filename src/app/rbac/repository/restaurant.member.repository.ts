@@ -74,3 +74,24 @@ export async function findRestaurantMemberByUserAndRestaurant(
 
   return row ? toEntity(row) : null;
 }
+
+
+export async function findRestaurantMemberWithRole(
+  userId: number
+): Promise<{ member: RestaurantMember; roleName: string }> {
+  const row: any = await db("restaurant_members as rm")
+    .select(
+      "rm.*",
+      "rm.restaurant_id",
+      "r.name as roleName"
+    )
+    .leftJoin("roles as r", "rm.role_id", "r.id")
+    .where("rm.user_id", userId)
+    .andWhere("rm.status", MemberStatus.ACTIVE)
+    .first();
+
+  return {
+    member: toEntity(row),
+    roleName: row.roleName,
+  };
+}

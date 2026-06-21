@@ -110,3 +110,14 @@ export async function deleteMemberBranch(
     })
     .delete();
 }
+
+
+export async function findBranchIdsByMemberId(
+  memberId: number
+): Promise<number[]> {
+  const rows: any[] = await db("member_branches")
+    .select("branch_id")
+    .where("member_id", memberId);
+
+  return rows.map((row: any) => row.branch_id); // [{branch_id:2}, {branch_id:3}] => [2,3]
+}

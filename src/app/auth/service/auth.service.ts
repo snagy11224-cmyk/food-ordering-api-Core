@@ -27,6 +27,9 @@ import { activateMemberByUserId, createPasswordReset, findLatestPasswordResetByU
 import { RestaurantService, restaurantService } from "../../restaurant/service/restaurant.service";
 import { Restaurant } from "../../restaurant/entity/restaurant.entity";
 import { db } from "../../../common/knex/knex";
+import { findRestaurantMemberWithRole } from "../../rbac/repository/restaurant.member.repository";
+import { findBranchIdsByMemberId } from "../../rbac/repository/member.branch.repo";
+import { memberIdNotFound } from "../../rbac/errors";
 
 
 /*type LoginResponse ={
@@ -73,8 +76,8 @@ export class AuthService {
 
     
     //transaction to control user creation either customer or resturant
-    const trx=await db.transaction();
-
+const trx=await db.transaction();
+let restaurantMemberInfo = null;
   let user: any;
   let restaurant: Restaurant | undefined;
     try{
@@ -96,7 +99,25 @@ if(data.role==SystemRole.RESTAURANT_USER){
   if(data.restaurant==undefined){
     throw restaurantDataRequiredError;
   }
-  restaurant=await this.restaurantService.create(user.id,data.restaurant, trx);
+restaurant=await this.restaurantService.create(user.id,data.restaurant, trx);
+  
+//insert member && set the member info in the payload
+
+if (data.role === SystemRole.RESTAURANT_USER) {
+
+  await this.restaurantService.createOwner(
+    user.id,
+    restaurant.id!,
+    trx
+  );
+
+  restaurantMemberInfo = {
+    restaurantId: restaurant.id,
+    restaurantRole: "OWNER",
+    branchIds: []
+  };
+}
+
 }
 
   await trx.commit();
@@ -109,10 +130,11 @@ throw error;
 
 
        const payload = {
-      userId: user.id,
-      role: data.role,
-      email: user.email,
-    };
+  userId: user.id,
+  role: user.systemRole,
+  email: user.email,
+  ...(restaurantMemberInfo ? { restaurantMemberInfo } : {}),
+};
 
 
     const accessToken = createAccessToken(payload);
@@ -146,12 +168,36 @@ login= async (data: loginDto): Promise<RegisterResponse> => {
     if(!match){
     throw paswordMismatchError;
 }
+
+
+//restaurant rbac
+let restaurantMemberInfo=null;
+if(user.systemRole==SystemRole.RESTAURANT_USER){
+  const memberData= await findRestaurantMemberWithRole(user.id);
+  if (!memberData.member.id) {
+    throw memberIdNotFound;
+  }
+  const branchIds = await findBranchIdsByMemberId(memberData.member.id);
+
+  if (memberData){
+    restaurantMemberInfo={
+      restaurantId: memberData.member.restaurantId,
+      restaurantRole:memberData.roleName,
+      branchIds
+
+    }
+  }
+
+
+}
+
     //generate tokens
     const payload = {
-      userId: user.id,
-      role: user.systemRole,
-      email: user.email,
-    };
+  userId: user.id,
+  role: user.systemRole,
+  email: user.email,
+  ...(restaurantMemberInfo ? { restaurantMemberInfo } : {}),
+};
 
     const accessToken = createAccessToken(payload);
     const refreshToken = createRefreshToken(payload);
