@@ -42,6 +42,19 @@ class PermissionCacheService {
 
     return permissions;
   }
+
+
+
+  hasPermission(
+    permissions: string[],
+    resource: string,
+    action: string
+): boolean {
+
+    return permissions.includes(
+        `${resource}:${action}`
+    );
+}
 }
 
 export const permissionCache =
