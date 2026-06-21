@@ -23,7 +23,7 @@ import {
   verifyRefreshToken
 } from "../utils";
 import { SystemRole } from "../../user/enums";
-import { createPasswordReset, findLatestPasswordResetByUserId, updatePasswordResetConsumedAt } from "../repository/repo.pasword.reset";
+import { activateMemberByUserId, createPasswordReset, findLatestPasswordResetByUserId, updatePasswordResetConsumedAt } from "../repository/repo.pasword.reset";
 import { RestaurantService, restaurantService } from "../../restaurant/service/restaurant.service";
 import { Restaurant } from "../../restaurant/entity/restaurant.entity";
 import { db } from "../../../common/knex/knex";
@@ -219,6 +219,8 @@ const newHashPassword=await hashPassword(data.newPassword);
 await updateUserPassword(user.id,newHashPassword);
 //update reset password
 await updatePasswordResetConsumedAt(reset.id);
+
+return user;
 }
 
 //refresh 
@@ -237,6 +239,18 @@ const payload = verifyRefreshToken(refreshToken);
  return {accessToken};
 }
 
+
+
+//accept invite
+async acceptInvite(data: resetPasswordDTO): Promise<void> {
+  //the accept invite step similar to reset password so we called it here
+  //confirm email exists
+  //check reser_passwords table against the id
+//create password
+  const user= await this.resetPassword(data);
+   //new step: activate user
+  await activateMemberByUserId(user.id);
+}
 
 
 }

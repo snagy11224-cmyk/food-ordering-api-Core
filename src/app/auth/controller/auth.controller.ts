@@ -120,5 +120,25 @@ res.status(200).json(
     }
 };
 
+
+
+acceptInvite = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+try{
+//validate body
+const data=await validateBody(resetPasswordDTO,req.body);
+await this.authService.acceptInvite(data);
+res.status(200).json(
+    {"message":"invitation accepted successfully, please login again"}
+)
+}catch (err) {
+      next(err);
+    }
+
+  };
+
 }
 export const authController=new AuthController(authService);

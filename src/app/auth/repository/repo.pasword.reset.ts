@@ -1,6 +1,7 @@
 import { PasswordReset } from "../entity/password.reset.entity"
 import {db} from "../../../common/knex/knex"
 import { Knex } from "knex"
+import { MemberStatus } from "../../rbac/enums"
 
 const PASSWORD_RESET_COLUMNS = [
     "id",
@@ -42,4 +43,19 @@ export async function updatePasswordResetConsumedAt(id:number) : Promise <void>{
 await db("password_resets").where("id",id).update({
 consumed_at:new Date()
 });
+}
+
+
+export async function activateMemberByUserId(
+  userId: number,
+  trx?: Knex.Transaction
+): Promise<void> {
+  const query = trx || db;
+
+  await query("restaurant_members")
+    .where("user_id", userId)
+    .update({
+      status: MemberStatus.ACTIVE,
+      updated_at: new Date(),
+    });
 }
