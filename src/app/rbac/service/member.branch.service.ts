@@ -45,7 +45,7 @@ updateMemberBranches = async (
   );
 
   // 6- replace old branch assignments with new selected branches
-  await setMemberBranches(memberId, rows);
+  await setMemberBranches(restaurantId,memberId, rows);
 
   return branchIds;
 };

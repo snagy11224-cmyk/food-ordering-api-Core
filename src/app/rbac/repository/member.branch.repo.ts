@@ -40,11 +40,20 @@ function toEntity(row: any): MemberBranch {
 
 
 export async function setMemberBranches(
+  restaurantId: number,
   memberId: number,
   rows: MemberBranch[],
   trx?: Knex.Transaction
 ): Promise<void> {
   const query = trx || db;
+
+  const branchIds = rows.map((row) => row.branchId);
+
+  await validateBranchesBelongToRestaurant(
+    restaurantId,
+    branchIds,
+    trx
+  );
 
   await query("member_branches")
     .where("member_id", memberId)
@@ -62,10 +71,17 @@ export async function setMemberBranches(
 }
 
 export async function createMemberBranch(
+  restaurantId: number,
   data: Partial<MemberBranch>,
   trx?: Knex.Transaction
 ): Promise<MemberBranch> {
   const query = trx || db;
+
+  await validateBranchesBelongToRestaurant(
+    restaurantId,
+    [data.branchId!],
+    trx
+  );
 
   const [row] = await query("member_branches")
     .insert({
@@ -77,6 +93,7 @@ export async function createMemberBranch(
 
   return toEntity(row);
 }
+
 
 export async function findBranchesByMemberId(
   memberId: number
@@ -120,4 +137,24 @@ export async function findBranchIdsByMemberId(
     .where("member_id", memberId);
 
   return rows.map((row: any) => row.branch_id); // [{branch_id:2}, {branch_id:3}] => [2,3]
+}
+
+
+async function validateBranchesBelongToRestaurant(
+  restaurantId: number,
+  branchIds: number[],
+  trx?: Knex.Transaction
+): Promise<void> {
+  const query = trx || db;
+
+  if (!branchIds.length) return;
+
+  const rows = await query("restaurant_branches")
+    .whereIn("id", branchIds)
+    .andWhere("restaurant_id", restaurantId)
+    .select("id");
+
+  if (rows.length !== branchIds.length) {
+    throw new Error("One or more branches do not belong to this restaurant");
+  }
 }

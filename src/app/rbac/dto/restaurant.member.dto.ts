@@ -9,7 +9,6 @@ import {
   MaxLength,
   IsArray,
 } from "class-validator";
-import { RestaurantRole } from "../enums";
 
 export class CreateRestaurantMemberDTO {
   @IsEmail()

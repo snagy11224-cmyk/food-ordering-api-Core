@@ -1,13 +1,12 @@
+import { UnauthorizedError, UserUnauthorizedError } from './../../app/auth/errors';
 import { Request,Response,NextFunction } from "express";
 export interface RBACoptions{
 resource:string,
 action :string,
-allowSystemAdmin :boolean,
-checkOwnership:boolean
+allowSystemAdmin ?:boolean,
+checkOwnership ? :boolean
 }
 
-
-import { UnauthorizedError } from "../../app/auth/errors";
 import { SystemRole } from "../../app/user/enums";
 import { permissionCache } from "../../app/rbac/service/permission.cache";
 // check for permissions
@@ -26,6 +25,9 @@ export function rbac(options: RBACoptions) {
 
 
 try{
+
+      console.log("USER IN RBAC", req.user);
+  console.log("RBAC OPTIONS", options);
     // req.user is there , if not we will bail
 if (!req.user) {
    throw UnauthorizedError;
@@ -42,7 +44,7 @@ if (!req.user) {
 
 
     // if he is a system admin -> bypass
-    if (allowSystemAdmin && req.user.role == SystemRole.SYSTEM_ADMIN) {
+    if (allowSystemAdmin && req.user.role === SystemRole.SYSTEM_ADMIN) {
         return next();
       }
 
@@ -65,17 +67,109 @@ if (!req.user) {
           res.status(403).json({
             error: "Permission denied",
           });
+          return;
         }  
 
-        next()
+        return next()
 }
     // if not restaurant user -> throw err
 res.status(403).json({
             error: "Permission denied",
           });
+
+          return 
+
+          
 }catch(error){
     next(error)
 }
 
 };
+}
+
+
+
+
+export function requireRestaurantMember(paramName:string='restaurantId'){
+    return async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  )=>{
+    const restaurantId=parseInt(req.params[paramName] as string)
+ 
+  if(!restaurantId){
+ res.status(400).json({
+    "message":"something went wrong"
+});
+return;
+  }
+
+
+if (Number(req.user?.restaurantId) !== restaurantId) {
+
+    if (req.user?.role === SystemRole.SYSTEM_ADMIN) {
+        return next();
+    }
+
+   res.status(403).json({
+        error: "Permission denied",
+    });
+    return;
+     
+}
+
+return next();
+
+}
+
+}
+
+
+
+
+export function requireBranchAccess(
+  paramName: string = "branchId"
+) {
+  return async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+
+    // user must be authenticated
+    if (!req.user) {
+      throw UserUnauthorizedError;
+    }
+
+    // get branch id from route
+    const branchId = parseInt(
+      req.params[paramName] as string
+    );
+
+    if (!branchId) {
+      res.status(400).json({
+        error: "Invalid branch id",
+      });
+      return;
+    }
+
+    // system admin bypass
+    if (req.user.role === SystemRole.SYSTEM_ADMIN) {
+      return next();
+    }
+
+    // check if user has access to this branch
+    if (
+      !req.user.branchIds ||
+      !req.user.branchIds.includes(branchId)
+    ) {
+      res.status(403).json({
+  error: "Permission denied",
+});
+return;
+    }
+
+    return next();
+  };
 }

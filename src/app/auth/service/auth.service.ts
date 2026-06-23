@@ -94,7 +94,7 @@ let restaurantMemberInfo = null;
 
 
 //check if the type of user is restaurant 
-// then call restaurant service to create new restaurant\
+// then call restaurant service to create new restaurant
 if(data.role==SystemRole.RESTAURANT_USER){
   if(data.restaurant==undefined){
     throw restaurantDataRequiredError;
@@ -133,7 +133,7 @@ throw error;
   userId: user.id,
   role: user.systemRole,
   email: user.email,
-  ...(restaurantMemberInfo ? { restaurantMemberInfo } : {}),
+  ...(restaurantMemberInfo ?? {}),
 };
 
 
@@ -172,7 +172,10 @@ login= async (data: loginDto): Promise<RegisterResponse> => {
 
 //restaurant rbac
 let restaurantMemberInfo=null;
-if(user.systemRole==SystemRole.RESTAURANT_USER){
+const systemRole = (user as any).systemRole ?? (user as any).system_role;
+console.log("SYSTEM ROLE", systemRole);
+
+if(systemRole == SystemRole.RESTAURANT_USER){
   const memberData= await findRestaurantMemberWithRole(user.id);
   if (!memberData.member.id) {
     throw memberIdNotFound;
@@ -193,11 +196,14 @@ if(user.systemRole==SystemRole.RESTAURANT_USER){
 
     //generate tokens
     const payload = {
-  userId: user.id,
-  role: user.systemRole,
-  email: user.email,
-  ...(restaurantMemberInfo ? { restaurantMemberInfo } : {}),
+    userId: user.id,
+    role: systemRole,
+    email: user.email,
+    ...(restaurantMemberInfo ?? {}),
 };
+
+//console.log("USER SYSTEM ROLE", user.systemRole);
+//console.log("LOGIN TOKEN PAYLOAD", payload);
 
     const accessToken = createAccessToken(payload);
     const refreshToken = createRefreshToken(payload);

@@ -64,7 +64,7 @@ createdAt:now
 
 }))
 
- await setMemberBranches(member.id!,rows,trx);
+ await setMemberBranches(restaurantId,member.id!,rows,trx);
 
 //generate OTP and create password reset record && send email 
 //generate an otp

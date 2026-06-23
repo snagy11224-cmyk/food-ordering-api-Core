@@ -82,6 +82,7 @@ export async function findRestaurantMemberWithRole(
   const row: any = await db("restaurant_members as rm")
     .select(
       "rm.*",
+      "rm.id",
       "rm.restaurant_id",
       "r.name as roleName"
     )

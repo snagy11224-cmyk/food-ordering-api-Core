@@ -29,10 +29,10 @@ function toEntity(row: any): User {
         phone: row.phone,
         name: row.name,
         passwordHash: row.passwordHash,     
-        systemRole: row.system_role,
-        deletedAt: row.deleted_at,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at
+        systemRole: row.systemRole,
+        deletedAt: row.deletedAt,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
     })
 }
 
