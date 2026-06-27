@@ -2,10 +2,11 @@ import { Knex } from "knex";
 import { registerRestaurantDto } from "../../auth/dto/auth.dto";
 import { Restaurant } from "../entity/restaurant.entity";
 import { RestaurantStatus } from "../enums/restaurant.enums";
-import { createRestaurant, findAllRestaurants } from "../repository/restaurant.repo";
+import { createRestaurant, findAllRestaurants, findRestaurantById } from "../repository/restaurant.repo";
 import { RestaurantMember } from "../../rbac/entity/restaurant.member.entity";
 import { MemberStatus } from "../../rbac/enums";
 import { createRestaurantMember } from "../../rbac/repository/restaurant.member.repository";
+import { RestauranNotFoundError } from "../../branch/errors";
 
 export class RestaurantService{
 
@@ -60,6 +61,16 @@ createOwner = async (
   return result;
 };
 
+
+findById = async (restaurantId: number): Promise<Restaurant> => {
+  const restaurant = await findRestaurantById(restaurantId);
+
+  if (!restaurant) {
+    throw RestauranNotFoundError;
+  }
+
+  return restaurant;
+};
 
 }
 

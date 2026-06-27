@@ -13,9 +13,19 @@ res.status(200).json({data:result});
 catch(err){
 next(err)
 }
+};
 
+getById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const restaurantId = Number(req.params.id);
 
-}
+    const result = await this.restaurantService.findById(restaurantId);
+
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
 
 
 

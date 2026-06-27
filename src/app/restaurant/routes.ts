@@ -24,3 +24,28 @@ restaurantRouter.get(
   "/",
   restaurantController.getAll
 );
+
+
+/**
+ * @swagger
+ * /api/restaurants/{id}:
+ *   get:
+ *     summary: Get restaurant by id
+ *     description: Returns a single restaurant.
+ *     tags: [Restaurants]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Restaurant retrieved successfully
+ *       404:
+ *         description: Restaurant not found
+ */
+restaurantRouter.get(
+  "/:id",
+  restaurantController.getById
+);
