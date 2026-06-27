@@ -28,7 +28,7 @@ restaurantRouter.get(
 
 /**
  * @swagger
- * /api/restaurants/{id}:
+ * /api/restaurant/{id}:
  *   get:
  *     summary: Get restaurant by id
  *     description: Returns a single restaurant.
