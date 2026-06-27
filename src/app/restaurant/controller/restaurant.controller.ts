@@ -1,5 +1,8 @@
 import { RestaurantService,restaurantService } from "../service/restaurant.service";
 import { NextFunction, Request, Response } from 'express';
+import { plainToInstance } from "class-transformer";
+import { validate } from "class-validator";
+import { CreateRestaurantDTO } from "../dto/restaurant.dto";
 
 export class RestaurantController {
 constructor(private readonly restaurantService:RestaurantService){}
@@ -28,6 +31,22 @@ getById = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 
+create = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const dto = plainToInstance(CreateRestaurantDTO, req.body);
+    const errors = await validate(dto);
+
+    if (errors.length > 0) {
+      return res.status(400).json({ error: "Validation error" });
+    }
+
+    const result = await this.restaurantService.createWithOwner(req.user, dto);
+
+    res.status(201).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
 
 }
 
