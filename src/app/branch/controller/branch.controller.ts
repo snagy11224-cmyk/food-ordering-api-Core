@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { BranchService, branchService } from "../service/branch.service";
 import { validateBody } from "../../../common/validation/validate";
-import { CreateBranchDTO } from "../dto/branch.dto";
+import { CreateBranchDTO, UpdateBranchDTO } from "../dto/branch.dto";
 import { SystemRole } from "../../user/enums";
 //import { SystemRole } from "../../users/enums/user.enums";
 
@@ -69,6 +69,27 @@ export class BranchController {
   }
 };
 
+
+update = async (
+  req: Request<{ id: string }>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const data = await validateBody(UpdateBranchDTO, req.body);
+
+    const result = await this.branchService.update(
+      Number(req.params.id),
+      req.user?.userId!,
+      req.user?.role! as SystemRole,
+      data
+    );
+
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
 
 
 }

@@ -145,3 +145,39 @@ export async function findBranchesByRestaurant(
 
   return rows.map(toEntity);
 };
+
+
+export async function findBranchById(branchId: number): Promise<Branch | null> {
+  const row = await db("restaurant_branches")
+    .select(BRANCH_COLUMNS)
+    .where("id", branchId)
+    .first();
+
+  return row ? toEntity(row) : null;
+}
+
+export async function updateBranch(
+  branchId: number,
+  data: Partial<Branch>
+): Promise<Branch> {
+  const updateData: any = {
+    updated_at: new Date(),
+  };
+
+  if (data.label !== undefined) updateData.label = data.label;
+  if (data.addressText !== undefined) updateData.address_text = data.addressText;
+  if (data.lat !== undefined) updateData.lat = data.lat;
+  if (data.lng !== undefined) updateData.lng = data.lng;
+  if (data.opensAt !== undefined) updateData.opens_at = data.opensAt;
+  if (data.closesAt !== undefined) updateData.closes_at = data.closesAt;
+  if (data.deliveryRadius !== undefined) updateData.delivery_radius = data.deliveryRadius;
+  if (data.currency !== undefined) updateData.currency = data.currency;
+  if (data.acceptOrders !== undefined) updateData.accept_orders = data.acceptOrders;
+
+  const [row] = await db("restaurant_branches")
+    .where("id", branchId)
+    .update(updateData)
+    .returning(BRANCH_COLUMNS);
+
+  return toEntity(row);
+}

@@ -49,3 +49,40 @@ export class CreateBranchDTO {
 }
 
 
+export class UpdateBranchDTO {
+  @IsOptional()
+  @IsString()
+  label?: string;
+
+  @IsOptional()
+  @IsString()
+  addressText?: string;
+
+  @IsOptional()
+  @IsNumber()
+  lat?: number;
+
+  @IsOptional()
+  @IsNumber()
+  lng?: number;
+
+  @IsOptional()
+  @IsString()
+  opensAt?: string;
+
+  @IsOptional()
+  @IsString()
+  closesAt?: string;
+
+  @IsOptional()
+  @IsNumber()
+  deliveryRadius?: number;
+
+  @IsOptional()
+  @IsString()
+  currency?: Currency;
+
+  @IsOptional()
+  @IsBoolean()
+  acceptOrders?: boolean;
+}

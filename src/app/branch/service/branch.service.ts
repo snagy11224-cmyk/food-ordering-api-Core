@@ -1,10 +1,10 @@
-import { CreateBranchDTO } from './../dto/branch.dto';
+import { CreateBranchDTO, UpdateBranchDTO } from './../dto/branch.dto';
 import {  UserUnauthorizedError } from "../../auth/errors";
 import { findRestaurantById } from "../../restaurant/repository/restaurant.repo";
 import { SystemRole } from "../../user/enums";
 import { Branch } from "../entity/branch.entity";
-import { createBranch, findNearbyBranches , findBranchesByRestaurant } from "../repository/branch.repository";
-import { RestauranNotFoundError } from '../errors';
+import { createBranch, findNearbyBranches , findBranchesByRestaurant, updateBranch, findBranchById } from "../repository/branch.repository";
+import { BranchNotFoundError, RestauranNotFoundError } from '../errors';
 
 export class BranchService {
 
@@ -118,6 +118,49 @@ if (!isAdmin && !isOwner) {
       currency: branch.currency,
       commission: branch.commission,
     })),
+  };
+};
+
+update = async (
+  branchId: number,
+  userId: number,
+  userRole: SystemRole,
+  data: UpdateBranchDTO
+) => {
+  const branch = await findBranchById(branchId);
+
+  if (!branch) {
+    throw BranchNotFoundError;
+  }
+
+  const restaurant = await findRestaurantById(branch.restaurantId);
+
+  if (!restaurant) {
+    throw RestauranNotFoundError;
+  }
+
+  const isAdmin = userRole === SystemRole.SYSTEM_ADMIN;
+  const isOwner = Number(restaurant.ownerId) === Number(userId);
+
+  if (!isAdmin && !isOwner) {
+    throw UserUnauthorizedError;
+  }
+
+  const updatedBranch = await updateBranch(branchId, {
+    label: data.label,
+    addressText: data.addressText,
+    lat: data.lat,
+    lng: data.lng,
+    opensAt: data.opensAt,
+    closesAt: data.closesAt,
+    deliveryRadius: data.deliveryRadius,
+    currency: data.currency,
+    acceptOrders: data.acceptOrders,
+  });
+
+  return {
+    message: "Branch updated successfully",
+    branch: updatedBranch,
   };
 };
 

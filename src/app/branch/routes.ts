@@ -98,3 +98,54 @@ branchRouter.get(
   "/restaurants/:restaurantId/branches",
   branchController.findByRestaurant
 );
+
+
+/**
+ * @swagger
+ * /api/branches/{id}:
+ *   patch:
+ *     summary: Update branch
+ *     description: Restaurant owner or system admin updates branch details.
+ *     tags: [Branches]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               label:
+ *                 type: string
+ *               addressText:
+ *                 type: string
+ *               lat:
+ *                 type: number
+ *               lng:
+ *                 type: number
+ *               opensAt:
+ *                 type: string
+ *               closesAt:
+ *                 type: string
+ *               deliveryRadius:
+ *                 type: number
+ *               currency:
+ *                 type: string
+ *               acceptOrders:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Branch updated successfully
+ */
+branchRouter.patch(
+  "/branches/:id",
+  authenticate,
+  branchController.update
+);
