@@ -1,9 +1,9 @@
-import { CreateBranchDTO, UpdateBranchDTO } from './../dto/branch.dto';
+import { CreateBranchDTO, UpdateBranchDTO, UpdateBranchStatusDTO } from './../dto/branch.dto';
 import {  UserUnauthorizedError } from "../../auth/errors";
 import { findRestaurantById } from "../../restaurant/repository/restaurant.repo";
 import { SystemRole } from "../../user/enums";
 import { Branch } from "../entity/branch.entity";
-import { createBranch, findNearbyBranches , findBranchesByRestaurant, updateBranch, findBranchById } from "../repository/branch.repository";
+import { createBranch, findNearbyBranches , findBranchesByRestaurant, updateBranch, findBranchById, updateBranchStatus } from "../repository/branch.repository";
 import { BranchNotFoundError, RestauranNotFoundError } from '../errors';
 
 export class BranchService {
@@ -161,6 +161,39 @@ update = async (
   return {
     message: "Branch updated successfully",
     branch: updatedBranch,
+  };
+};
+
+
+
+updateStatus = async (
+  branchId: number,
+  userRole: SystemRole,
+  data: UpdateBranchStatusDTO
+) => {
+  if (userRole !== SystemRole.SYSTEM_ADMIN) {
+    throw UserUnauthorizedError;
+  }
+
+  const branch = await findBranchById(branchId);
+
+  if (!branch) {
+    throw BranchNotFoundError;
+  }
+
+  const updatedBranch = await updateBranchStatus(branchId, {
+    isActive: data.isActive,
+    commission: data.commission,
+  });
+
+  return {
+    message: "Branch status updated successfully",
+    branch: {
+      id: updatedBranch.id,
+      isActive: updatedBranch.isActive,
+      acceptOrders: updatedBranch.acceptOrders,
+      commission: updatedBranch.commission,
+    },
   };
 };
 

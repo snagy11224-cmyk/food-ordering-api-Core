@@ -181,3 +181,32 @@ export async function updateBranch(
 
   return toEntity(row);
 }
+
+
+export async function updateBranchStatus(
+  branchId: number,
+  data: Partial<Branch>
+): Promise<Branch> {
+  const updateData: any = {
+    updated_at: new Date(),
+  };
+
+  if (data.isActive !== undefined) {
+    updateData.is_active = data.isActive;
+
+    if (data.isActive === false) {
+      updateData.accept_orders = false;
+    }
+  }
+
+  if (data.commission !== undefined) {
+    updateData.commission = data.commission;
+  }
+
+  const [row] = await db("restaurant_branches")
+    .where("id", branchId)
+    .update(updateData)
+    .returning(BRANCH_COLUMNS);
+
+  return toEntity(row);
+}

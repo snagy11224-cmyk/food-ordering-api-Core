@@ -86,3 +86,13 @@ export class UpdateBranchDTO {
   @IsBoolean()
   acceptOrders?: boolean;
 }
+
+export class UpdateBranchStatusDTO {
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  commission?: number;
+}

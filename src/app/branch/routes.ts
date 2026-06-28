@@ -149,3 +149,48 @@ branchRouter.patch(
   authenticate,
   branchController.update
 );
+
+
+/**
+ * @swagger
+ * /api/branches/{id}/status:
+ *   patch:
+ *     summary: Update branch status
+ *     description: System admin updates branch active status and commission.
+ *     tags: [Branches]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               isActive:
+ *                 type: boolean
+ *                 example: true
+ *               commission:
+ *                 type: number
+ *                 example: 15
+ *     responses:
+ *       200:
+ *         description: Branch status updated successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Permission denied
+ *       404:
+ *         description: Branch not found
+ */
+branchRouter.patch(
+  "/branches/:id/status",
+  authenticate,
+  branchController.updateStatus
+);
