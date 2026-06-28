@@ -2,7 +2,7 @@ import { RestaurantService,restaurantService } from "../service/restaurant.servi
 import { NextFunction, Request, Response } from 'express';
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
-import { CreateRestaurantDTO } from "../dto/restaurant.dto";
+import { CreateRestaurantDTO, UpdateRestaurantStatusDTO } from "../dto/restaurant.dto";
 import { UpdateRestaurantDTO } from "../dto/restaurant.dto";
 
 export class RestaurantController {
@@ -74,6 +74,30 @@ update = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+
+
+updateStatus = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const restaurantId = Number(req.params.id);
+
+    const dto = plainToInstance(UpdateRestaurantStatusDTO, req.body);
+    const errors = await validate(dto);
+
+    if (errors.length > 0) {
+      return res.status(400).json({ error: "Validation error" });
+    }
+
+    const result = await this.restaurantService.updateStatus(
+      (req as any).user,
+      restaurantId,
+      dto
+    );
+
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
 
 
 }

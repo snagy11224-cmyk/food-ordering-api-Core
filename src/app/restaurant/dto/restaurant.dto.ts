@@ -5,8 +5,11 @@ import {
   IsString,
   MinLength,
   ValidateNested,
+  IsIn
 } from "class-validator";
 import { Type } from "class-transformer";
+import { RestaurantStatus } from "../enums/restaurant.enums";
+
 
 export class CreateRestaurantOwnerDTO {
   @IsEmail()
@@ -58,4 +61,17 @@ export class UpdateRestaurantDTO {
   @IsString()
   @IsNotEmpty()
   primaryCountry?: string;
+}
+
+
+export class UpdateRestaurantStatusDTO {
+  @IsString()
+  @IsNotEmpty()
+  @IsIn([
+    RestaurantStatus.ACTIVE,
+    RestaurantStatus.SUSPENDED,
+    RestaurantStatus.DISABLED,
+    RestaurantStatus.PENDING,
+  ])
+  status!: RestaurantStatus;
 }

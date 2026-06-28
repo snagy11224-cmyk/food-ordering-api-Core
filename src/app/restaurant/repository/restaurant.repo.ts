@@ -1,6 +1,7 @@
 import { Restaurant } from "../entity/restaurant.entity";
 import { db } from "../../../common/knex/knex";
 import { Knex } from "knex";
+import { RestaurantStatus } from "../enums/restaurant.enums";
 
 const RESTAURANT_COLUMNS = [
   "id",
@@ -108,6 +109,24 @@ export async function updateRestaurant(
   const [row] = await db("restaurants")
     .where("id", restaurantId)
     .update(updateData)
+    .returning(RESTAURANT_COLUMNS);
+
+  return toEntity(row);
+}
+
+
+
+export async function updateRestaurantStatus(
+  restaurantId: number,
+  status: RestaurantStatus
+): Promise<Restaurant> {
+  const [row] = await db("restaurants")
+    .where("id", restaurantId)
+    .update({
+      status,
+      status_updated_at: new Date(),
+      updated_at: new Date(),
+    })
     .returning(RESTAURANT_COLUMNS);
 
   return toEntity(row);

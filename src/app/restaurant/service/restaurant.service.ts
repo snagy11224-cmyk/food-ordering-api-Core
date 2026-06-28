@@ -2,18 +2,18 @@ import { Knex } from "knex";
 import { registerRestaurantDto } from "../../auth/dto/auth.dto";
 import { Restaurant } from "../entity/restaurant.entity";
 import { RestaurantStatus } from "../enums/restaurant.enums";
-import { createRestaurant, findAllRestaurants, findRestaurantById,updateRestaurant } from "../repository/restaurant.repo";
+import { createRestaurant, findAllRestaurants, findRestaurantById,updateRestaurant, updateRestaurantStatus } from "../repository/restaurant.repo";
 import { RestaurantMember } from "../../rbac/entity/restaurant.member.entity";
 import { MemberStatus, RestaurantRole } from "../../rbac/enums";
 import { createRestaurantMember } from "../../rbac/repository/restaurant.member.repository";
 import { RestauranNotFoundError } from "../../branch/errors";
 import bcrypt from "bcrypt";
 import { db } from "../../../common/knex/knex";
-import { CreateRestaurantDTO } from "../dto/restaurant.dto";
+import { CreateRestaurantDTO, UpdateRestaurantStatusDTO } from "../dto/restaurant.dto";
 import { User } from "../../user/entity/user.entity";
 import { SystemRole } from "../../user/enums";
 import { createUser, findUserExistsByEmailOrPhone } from "../../user/repository/users.repo";
-import { OwnerRoleNotFoundError, RestauratntCreationError } from "../error";
+import { OwnerRoleNotFoundError, PermissionDeniedError, RestaurantNotFoundError, RestauratntCreationError } from "../error";
 import { findRoleByName } from "../../rbac/repository/role.repo";
 import { userAlreadyExistsError } from "../../auth/errors";
 import { UpdateRestaurantDTO } from "../dto/restaurant.dto";
@@ -94,7 +94,7 @@ createWithOwner = async (
   data: CreateRestaurantDTO
 ) => {
   if (currentUser.role !== SystemRole.SYSTEM_ADMIN) {
-    throw new Error("Permission denied");
+    throw PermissionDeniedError;
   }
 
   const exists = await findUserExistsByEmailOrPhone(
@@ -181,14 +181,14 @@ update = async (
   const restaurant = await findRestaurantById(restaurantId);
 
   if (!restaurant) {
-    throw new Error("Restaurant not found");
+    throw RestaurantNotFoundError;
   }
 
   const isSystemAdmin = currentUser.role === SystemRole.SYSTEM_ADMIN;
   const isOwner = Number(restaurant.ownerId) === Number(currentUser.userId);
 
   if (!isSystemAdmin && !isOwner) {
-    throw new Error("Permission denied");
+    throw PermissionDeniedError;
   }
 
   const updatedRestaurant = await updateRestaurant(restaurantId, {
@@ -209,6 +209,37 @@ update = async (
     },
   };
 };
+
+
+updateStatus = async (
+  currentUser: any,
+  restaurantId: number,
+  data: UpdateRestaurantStatusDTO
+) => {
+  if (currentUser.role !== SystemRole.SYSTEM_ADMIN) {
+    throw PermissionDeniedError;
+  }
+
+  const restaurant = await findRestaurantById(restaurantId);
+
+  if (!restaurant) {
+    throw RestaurantNotFoundError;
+  }
+
+  const updatedRestaurant = await updateRestaurantStatus(
+    restaurantId,
+    data.status
+  );
+
+  return {
+    message: "Restaurant status updated successfully",
+    restaurant: {
+      id: updatedRestaurant.id,
+      status: updatedRestaurant.status,
+    },
+  };
+};
+
 
 }
 

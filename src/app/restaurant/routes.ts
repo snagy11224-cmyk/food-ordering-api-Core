@@ -168,3 +168,50 @@ restaurantRouter.patch(
   authenticate,
   restaurantController.update
 );
+
+
+/**
+ * @swagger
+ * /api/restaurant/{id}/status:
+ *   patch:
+ *     summary: Update restaurant status
+ *     description: System admin updates restaurant status.
+ *     tags: [Restaurants]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [active, suspended, disabled, pending]
+ *                 example: active
+ *     responses:
+ *       200:
+ *         description: Restaurant status updated successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Permission denied
+ *       404:
+ *         description: Restaurant not found
+ */
+restaurantRouter.patch(
+  "/:id/status",
+  authenticate,
+  restaurantController.updateStatus
+);
