@@ -2,7 +2,7 @@ import { Knex } from "knex";
 import { registerRestaurantDto } from "../../auth/dto/auth.dto";
 import { Restaurant } from "../entity/restaurant.entity";
 import { RestaurantStatus } from "../enums/restaurant.enums";
-import { createRestaurant, findAllRestaurants, findRestaurantById } from "../repository/restaurant.repo";
+import { createRestaurant, findAllRestaurants, findRestaurantById,updateRestaurant } from "../repository/restaurant.repo";
 import { RestaurantMember } from "../../rbac/entity/restaurant.member.entity";
 import { MemberStatus, RestaurantRole } from "../../rbac/enums";
 import { createRestaurantMember } from "../../rbac/repository/restaurant.member.repository";
@@ -16,6 +16,7 @@ import { createUser, findUserExistsByEmailOrPhone } from "../../user/repository/
 import { OwnerRoleNotFoundError, RestauratntCreationError } from "../error";
 import { findRoleByName } from "../../rbac/repository/role.repo";
 import { userAlreadyExistsError } from "../../auth/errors";
+import { UpdateRestaurantDTO } from "../dto/restaurant.dto";
 
 export class RestaurantService{
 
@@ -168,6 +169,45 @@ createWithOwner = async (
     await trx.rollback();
     throw err;
   }
+};
+
+
+
+update = async (
+  currentUser: any,
+  restaurantId: number,
+  data: UpdateRestaurantDTO
+) => {
+  const restaurant = await findRestaurantById(restaurantId);
+
+  if (!restaurant) {
+    throw new Error("Restaurant not found");
+  }
+
+  const isSystemAdmin = currentUser.role === SystemRole.SYSTEM_ADMIN;
+  const isOwner = Number(restaurant.ownerId) === Number(currentUser.userId);
+
+  if (!isSystemAdmin && !isOwner) {
+    throw new Error("Permission denied");
+  }
+
+  const updatedRestaurant = await updateRestaurant(restaurantId, {
+    name: data.name,
+    logoURL: data.logoUrl,
+    primaryCountry: data.primaryCountry,
+  });
+
+  return {
+    message: "Restaurant updated successfully",
+    restaurant: {
+      id: updatedRestaurant.id,
+      name: updatedRestaurant.name,
+      logoURL: updatedRestaurant.logoURL,
+      primaryCountry: updatedRestaurant.primaryCountry,
+      status: updatedRestaurant.status,
+      updatedAt: updatedRestaurant.updatedAt,
+    },
+  };
 };
 
 }

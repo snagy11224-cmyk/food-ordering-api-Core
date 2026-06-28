@@ -117,3 +117,54 @@ restaurantRouter.post(
   authenticate,
   restaurantController.create
 );
+
+
+
+/**
+ * @swagger
+ * /api/restaurant/{id}:
+ *   patch:
+ *     summary: Update restaurant
+ *     description: Restaurant owner or system admin updates restaurant profile data.
+ *     tags: [Restaurants]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: New Restaurant Name
+ *               logoUrl:
+ *                 type: string
+ *                 example: https://example.com/new-logo.png
+ *               primaryCountry:
+ *                 type: string
+ *                 example: EG
+ *     responses:
+ *       200:
+ *         description: Restaurant updated successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Permission denied
+ *       404:
+ *         description: Restaurant not found
+ */
+restaurantRouter.patch(
+  "/:id",
+  authenticate,
+  restaurantController.update
+);

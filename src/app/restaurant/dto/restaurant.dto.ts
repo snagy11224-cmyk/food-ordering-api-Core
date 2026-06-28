@@ -42,3 +42,20 @@ export class CreateRestaurantDTO {
   @IsNotEmpty()
   primaryCountry!: string;
 }
+
+
+export class UpdateRestaurantDTO {
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  logoUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  primaryCountry?: string;
+}

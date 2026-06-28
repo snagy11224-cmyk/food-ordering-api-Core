@@ -82,3 +82,33 @@ export async function createRestaurant(data:Partial<Restaurant>, conn:Knex=db): 
 
     return toEntity(row);
 }
+
+
+
+export async function updateRestaurant(
+  restaurantId: number,
+  data: Partial<Restaurant>
+): Promise<Restaurant> {
+  const updateData: any = {
+    updated_at: new Date(),
+  };
+
+  if (data.name !== undefined) {
+    updateData.name = data.name;
+  }
+
+  if (data.logoURL !== undefined) {
+    updateData.logo_url = data.logoURL;
+  }
+
+  if (data.primaryCountry !== undefined) {
+    updateData.primary_country = data.primaryCountry;
+  }
+
+  const [row] = await db("restaurants")
+    .where("id", restaurantId)
+    .update(updateData)
+    .returning(RESTAURANT_COLUMNS);
+
+  return toEntity(row);
+}
