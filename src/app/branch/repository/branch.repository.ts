@@ -68,7 +68,7 @@ export async function createBranch(
     .returning(BRANCH_COLUMNS);
 
   return toEntity(row);
-}
+};
 
 
 export async function findNearbyBranches(
@@ -132,4 +132,16 @@ export async function findNearbyBranches(
   );
 
   return rows;
-}
+};
+
+
+export async function findBranchesByRestaurant(
+  restaurantId: number
+): Promise<Branch[]> {
+  const rows = await db("restaurant_branches")
+    .select(BRANCH_COLUMNS)
+    .where("restaurant_id", restaurantId)
+    .orderBy("id", "asc");
+
+  return rows.map(toEntity);
+};

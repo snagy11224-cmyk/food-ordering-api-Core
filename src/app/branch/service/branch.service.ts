@@ -3,7 +3,7 @@ import {  UserUnauthorizedError } from "../../auth/errors";
 import { findRestaurantById } from "../../restaurant/repository/restaurant.repo";
 import { SystemRole } from "../../user/enums";
 import { Branch } from "../entity/branch.entity";
-import { createBranch, findNearbyBranches } from "../repository/branch.repository";
+import { createBranch, findNearbyBranches , findBranchesByRestaurant } from "../repository/branch.repository";
 import { RestauranNotFoundError } from '../errors';
 
 export class BranchService {
@@ -95,6 +95,31 @@ if (!isAdmin && !isOwner) {
       distanceMeters: Number(row.distance_meters),
     }));
   };
+
+
+
+  findByRestaurant = async (restaurantId: number) => {
+  const branches = await findBranchesByRestaurant(restaurantId);
+
+  return {
+    data: branches.map((branch) => ({
+      id: branch.id,
+      restaurantId: branch.restaurantId,
+      label: branch.label,
+      countryCode: branch.countryCode,
+      addressText: branch.addressText,
+      lat: branch.lat,
+      lng: branch.lng,
+      isActive: branch.isActive,
+      opensAt: branch.opensAt,
+      closesAt: branch.closesAt,
+      acceptOrders: branch.acceptOrders,
+      deliveryRadius: branch.deliveryRadius,
+      currency: branch.currency,
+      commission: branch.commission,
+    })),
+  };
+};
 
 }
 

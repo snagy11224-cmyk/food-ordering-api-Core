@@ -50,6 +50,27 @@ export class BranchController {
       next(err);
     }
   };
+
+
+
+  findByRestaurant = async (
+  req: Request<{ restaurantId: string }>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const result = await this.branchService.findByRestaurant(
+      Number(req.params.restaurantId)
+    );
+
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+
 }
 
 export const branchController = new BranchController(branchService);

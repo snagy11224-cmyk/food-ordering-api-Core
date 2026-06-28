@@ -65,3 +65,36 @@ branchRouter.post(
   authenticate,
   branchController.create
 );
+
+/**
+ * @swagger
+ * /api/restaurants/{restaurantId}/branches:
+ *   get:
+ *     summary: Get all branches for a restaurant
+ *     description: Returns all branches belonging to a specific restaurant.
+ *     tags: [Branches]
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Branches retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       404:
+ *         description: Restaurant not found
+ */
+branchRouter.get(
+  "/restaurants/:restaurantId/branches",
+  branchController.findByRestaurant
+);
