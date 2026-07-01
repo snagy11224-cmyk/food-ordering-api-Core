@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { ProductService, productService } from "../service/product.service";
 import { SystemRole } from "../../user/enums";
+import { CreateProductDTO } from "../dto/product.dto";
+import { validateBody } from "../../../common/validation/validate";
+
 
 export class ProductController {
 
@@ -85,6 +88,26 @@ findById = async (
   }
 };
 
+create = async (
+  req: Request<{ restaurantId: string }>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const data = await validateBody(CreateProductDTO, req.body);
+
+    const result = await this.productService.create(
+      Number(req.params.restaurantId),
+      req.user?.userId!,
+      req.user?.role! as SystemRole,
+      data
+    );
+
+    res.status(201).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
 
 }
 

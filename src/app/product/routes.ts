@@ -106,3 +106,50 @@ productRouter.get(
   "/products/:id",
   productController.findById
 );
+
+
+/**
+ * @swagger
+ * /api/restaurants/{restaurantId}/products:
+ *   post:
+ *     summary: Create product
+ *     description: Restaurant owner or system admin creates a product.
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Chicken Burger
+ *               description:
+ *                 type: string
+ *                 example: Crispy chicken burger
+ *               imageUrl:
+ *                 type: string
+ *                 example: https://example.com/burger.png
+ *               categoryName:
+ *                 type: string
+ *                 example: Burgers
+ *     responses:
+ *       201:
+ *         description: Product created successfully
+ */
+productRouter.post(
+  "/restaurants/:restaurantId/products",
+  authenticate,
+  productController.create
+);

@@ -7,6 +7,10 @@ import { findProductsByRestaurant } from "../repository/product.repository";
 import { RestaurantNotFoundError } from "../../restaurant/error";
 import { findProductById } from "../repository/product.repository";
 import { productNotFoundError } from "../errors";
+import {createCategory, findCategoryByName } from "../repository/category.repository";
+import { createProduct } from "../repository/product.repository";
+import { CreateProductDTO } from "../dto/product.dto";
+import { Product } from "../entity/product.entity";
 
 export class ProductService {
 
@@ -49,6 +53,66 @@ findById = async (productId: number) => {
 
   return product;
 }; 
+
+
+
+create = async (
+  restaurantId: number,
+  userId: number,
+  userRole: SystemRole,
+  data: CreateProductDTO
+) => {
+  const restaurant = await findRestaurantById(restaurantId);
+
+  if (!restaurant) {
+    throw RestaurantNotFoundError;
+  }
+
+  const isAdmin = userRole === SystemRole.SYSTEM_ADMIN;
+  const isOwner = Number(restaurant.ownerId) === Number(userId);
+
+  if (!isAdmin && !isOwner) {
+    throw UserUnauthorizedError;
+  }
+
+  let categoryId: number | null = null;
+
+  if (data.categoryName) {
+    let category = await findCategoryByName(
+      restaurantId,
+      data.categoryName
+    );
+
+    if (!category) {
+      category = await createCategory({
+        restaurantId,
+        name: data.categoryName,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+
+    categoryId = category.id;
+  }
+
+  const now = new Date();
+
+  const product = await createProduct({
+    restaurantId,
+    categoryId,
+    name: data.name,
+    description: data.description,
+    imageUrl: data.imageUrl,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  return {
+    message: "Product created successfully",
+    product,
+  };
+};
+
 
 
 }
