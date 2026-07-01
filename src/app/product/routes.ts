@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { productController } from "./controller/product.controller";
+import { authenticate } from "../../common/auth/guard";
 
 export const productRouter = Router();
 
@@ -47,4 +48,36 @@ productRouter.get(
 productRouter.get(
   "/branches/:branchId/products",
   productController.findByBranch
+);
+
+
+/**
+ * @swagger
+ * /api/restaurants/{restaurantId}/products:
+ *   get:
+ *     summary: Get restaurant products
+ *     description: Restaurant owner or system admin gets products for management.
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Products retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Permission denied
+ *       404:
+ *         description: Restaurant not found
+ */
+productRouter.get(
+  "/restaurants/:restaurantId/products",
+  authenticate,
+  productController.findByRestaurant
 );

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ProductService, productService } from "../service/product.service";
+import { SystemRole } from "../../user/enums";
 
 export class ProductController {
 
@@ -37,6 +38,27 @@ export class ProductController {
   try {
     const products = await this.productService.findByBranch(
       Number(req.params.branchId)
+    );
+
+    res.status(200).json({
+      data: products,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+findByRestaurant = async (
+  req: Request<{ restaurantId: string }>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const products = await this.productService.findByRestaurant(
+      Number(req.params.restaurantId),
+      req.user?.userId!,
+      req.user?.role! as SystemRole
     );
 
     res.status(200).json({
