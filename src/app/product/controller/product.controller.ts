@@ -69,7 +69,21 @@ findByRestaurant = async (
   }
 };
 
+findById = async (
+  req: Request<{ id: string }>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const product = await this.productService.findById(
+      Number(req.params.id)
+    );
 
+    res.status(200).json(product);
+  } catch (err) {
+    next(err);
+  }
+};
 
 
 }

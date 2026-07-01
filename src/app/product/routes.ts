@@ -81,3 +81,28 @@ productRouter.get(
   authenticate,
   productController.findByRestaurant
 );
+
+
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   get:
+ *     summary: Get product by id
+ *     description: Returns a single product.
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Product retrieved successfully
+ *       404:
+ *         description: Product not found
+ */
+productRouter.get(
+  "/products/:id",
+  productController.findById
+);

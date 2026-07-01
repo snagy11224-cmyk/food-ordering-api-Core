@@ -5,6 +5,8 @@ import { SystemRole } from "../../user/enums";
 import { UserUnauthorizedError } from "../../auth/errors";
 import { findProductsByRestaurant } from "../repository/product.repository";
 import { RestaurantNotFoundError } from "../../restaurant/error";
+import { findProductById } from "../repository/product.repository";
+import { productNotFoundError } from "../errors";
 
 export class ProductService {
 
@@ -37,6 +39,16 @@ findByRestaurant = async (
 
   return await findProductsByRestaurant(restaurantId);
 };
+
+findById = async (productId: number) => {
+  const product = await findProductById(productId);
+
+  if (!product) {
+    throw productNotFoundError;
+  }
+
+  return product;
+}; 
 
 
 }
