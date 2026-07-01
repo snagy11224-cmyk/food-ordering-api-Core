@@ -28,6 +28,28 @@ export class ProductController {
     }
   };
 
+
+  findByBranch = async (
+  req: Request<{ branchId: string }>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const products = await this.productService.findByBranch(
+      Number(req.params.branchId)
+    );
+
+    res.status(200).json({
+      data: products,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+
+
 }
 
 export const productController =

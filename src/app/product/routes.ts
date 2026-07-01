@@ -24,3 +24,27 @@ productRouter.get(
   "/restaurants/:restaurantId/categories",
   productController.findCategories
 );
+
+
+
+/**
+ * @swagger
+ * /api/branches/{branchId}/products:
+ *   get:
+ *     summary: Get products by branch
+ *     description: Returns products with branch-level price, stock, and availability.
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: branchId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Products retrieved successfully
+ */
+productRouter.get(
+  "/branches/:branchId/products",
+  productController.findByBranch
+);
